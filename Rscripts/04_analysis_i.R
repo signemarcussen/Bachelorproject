@@ -10,7 +10,7 @@ library("tidyverse")
 
 
 # Load data ---------------------------------------------------------------
-my_data <- read_tsv(file = ".tsv")
+my_data <- read_tsv(file = ".tsv.gz")
 
 
 # Wrangle data ------------------------------------------------------------
@@ -32,4 +32,4 @@ ggsave(filename = ".png",
        width = ,
        height = )
 write_tsv(x = my_data_subset,
-          file = "path/to/my/data_subset.tsv")
+          file = "path/to/my/data_subset.tsv.gz")

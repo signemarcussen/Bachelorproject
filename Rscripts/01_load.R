@@ -30,4 +30,4 @@ ggsave(filename = ".png",
        width = ,
        height = )
 write_tsv(x = my_data_subset,
-          file = "path/to/my/data_subset.tsv")
+          file = "path/to/my/data_subset.tsv.gz")
