@@ -25,10 +25,21 @@ minigene_hits <- read_csv(file = "data/_raw/minigene-hits.csv")
 # Combine peptide C1 and C2 experiments, and join subject_metadata
 dat <- rbind(peptide_detail_ci, 
              peptide_detail_cii) %>% 
-      full_join(x = ., 
-                y = subject_metadata, 
-                by = "Experiment")
-
+   full_join(x = .,
+             y = subject_metadata,
+             by = "Experiment") %>% 
+   select("Experiment", 
+          "Subject",
+          "TCR BioIdentity",
+          "TCR Nucleotide Sequence", 
+          "Amino Acids", 
+          matches("HLA")) %>% 
+   mutate(`Amino Acids` = strsplit(`Amino Acids`, ",")) %>% 
+   unnest(`Amino Acids`) %>% 
+   mutate(`TCR BioIdentity` = str_extract(`TCR BioIdentity`,
+                                          "[:alpha:](?=+"),
+          Binding = 1)
+   
 
 
 my_data_subset <- my_data %>% 
