@@ -37,8 +37,8 @@ dat <- rbind(peptide_detail_ci,
    mutate(`Amino Acids` = strsplit(`Amino Acids`, ",")) %>% 
    unnest(`Amino Acids`) %>% 
    mutate(`TCR BioIdentity` = str_extract(`TCR BioIdentity`,
-                                          "[:alpha:](?=+"),
-          Binding = 1)
+                                          "[:alpha:](?=+")) %>% 
+   mutate(Binding = 1)
    
 
 
