@@ -6,8 +6,6 @@ rm(list = ls())
 library("tidyverse")
 library("seqinr")
 
-# Define functions --------------------------------------------------------
-
 
 # Load data ---------------------------------------------------------------
 subject_metadata <- read_csv(file = "data/_raw/subject-metadata.csv")
@@ -22,8 +20,8 @@ peptide_detail_ci <- read_csv(file = "data/_raw/peptide-detail-ci.csv")
 
 # Wrangle data ------------------------------------------------------------
 
-# Combine peptide C1 and C2 experiments, and join subject_metadata
-raw_data <- peptide_detail_ci %>% 
+## Combine peptide C1 and C2 experiments, and join subject_metadata
+data_raw <- peptide_detail_ci %>% 
    full_join(x = .,
              y = subject_metadata,
              by = "Experiment") %>% 
@@ -32,7 +30,7 @@ raw_data <- peptide_detail_ci %>%
           "Amino Acids", 
           matches("HLA"))
 
-data_clean <- raw_data %>% 
+data_clean <- data_raw %>% 
    rename(Peptide = `Amino Acids`) %>% 
    mutate(Peptide = strsplit(Peptide, ",")) %>% 
    unnest(Peptide) %>%  
@@ -47,16 +45,21 @@ set.seed(1234)
 data_subset <- data_clean %>% sample_n(50)
 
 
-## Make fasta file of peptide sequences
+## Make fasta file of peptide sequences for NetMHCpan
 peptides_fasta <- as.list(data_subset$Peptide) %>% 
    map(~strsplit(.x, "")) %>% 
    map(~unlist(.x)) %>% 
    map(~as.vector(.x)) %>% 
    write.fasta(., 
-               names = paste("seq", c(1:length(peptides_fasta)), sep = "_"),
-               file.out = "peptides.fa")
+               names = paste("seq", c(1:length(.)), sep = "_"),
+               file.out = "~/Bachelor/Bachelorproject/data/peptides.fa")
 
-
+## Make HLA file for NetMHCpan
+HLA_fasta <- data_subset %>% 
+   select(matches("HLA")) %>%
+   map(~str_replace_all(., "\\*", "")) %>% 
+   map(~paste("HLA", ., sep = "-"))
+   
 
 # Write data --------------------------------------------------------------
 
