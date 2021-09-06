@@ -61,7 +61,8 @@ HLA_fasta <- data_subset %>%
    map(~paste("HLA", ., sep = "-")) %>% 
    as_tibble() %>% 
    write_csv(x = .,
-             file = "~/Bachelor/Bachelorproject/data/HLA.csv")
+             file = "~/Bachelor/Bachelorproject/data/HLA.csv",
+             col_names = FALSE)
 
 # Write data --------------------------------------------------------------
 
