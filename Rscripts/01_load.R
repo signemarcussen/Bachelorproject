@@ -58,8 +58,10 @@ peptides_fasta <- as.list(data_subset$Peptide) %>%
 HLA_fasta <- data_subset %>% 
    select(matches("HLA")) %>%
    map(~str_replace_all(., "\\*", "")) %>% 
-   map(~paste("HLA", ., sep = "-"))
-   
+   map(~paste("HLA", ., sep = "-")) %>% 
+   as_tibble() %>% 
+   write_csv(x = .,
+             file = "~/Bachelor/Bachelorproject/data/HLA.csv")
 
 # Write data --------------------------------------------------------------
 
