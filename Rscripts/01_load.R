@@ -45,24 +45,31 @@ set.seed(1234)
 data_subset <- data_clean %>% sample_n(50)
 
 
-## Make fasta file of peptide sequences for NetMHCpan
-peptides_fasta <- as.list(data_subset$Peptide) %>% 
-   map(~strsplit(.x, "")) %>% 
-   map(~unlist(.x)) %>% 
-   map(~as.vector(.x)) %>% 
-   write.fasta(., 
-               names = paste("seq", c(1:length(.)), sep = "_"),
-               file.out = "~/Bachelor/Bachelorproject/data/peptides.fa")
+## Make list of peptide sequences for NetMHCpan
+peptides_netMHCpan <- data_subset %>% 
+   select(Peptide) %>% 
+   write_tsv(.,
+             file = "~/Bachelor/Bachelorproject/data/peptides.pep",
+             col_names = FALSE)
+
 
 ## Make HLA file for NetMHCpan
-HLA_fasta <- data_subset %>% 
+HLA_netMHCpan <- data_subset %>% 
    select(matches("HLA")) %>%
+   map(~str_sub(., 1, 7)) %>% 
+   as_tibble() %>% 
+   pivot_longer(.,
+                cols = everything(),
+                values_to = "Allele",
+                values_drop_na = TRUE) %>% 
+   distinct(Allele) %>% 
    map(~str_replace_all(., "\\*", "")) %>% 
    map(~paste("HLA", ., sep = "-")) %>% 
    as_tibble() %>% 
-   write_csv(x = .,
-             file = "~/Bachelor/Bachelorproject/data/HLA.csv",
+   write_tsv(x = .,
+             file = "~/Bachelor/Bachelorproject/data/HLA.tsv",
              col_names = FALSE)
+
 
 # Write data --------------------------------------------------------------
 
