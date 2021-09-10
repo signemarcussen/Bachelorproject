@@ -56,19 +56,24 @@ peptides_netMHCpan <- data_subset %>%
 ## Make HLA file for NetMHCpan
 HLA_netMHCpan <- data_subset %>% 
    select(matches("HLA")) %>%
-   map(~str_sub(., 1, 7)) %>% 
-   as_tibble() %>% 
    pivot_longer(.,
                 cols = everything(),
                 values_to = "Allele",
                 values_drop_na = TRUE) %>% 
+   mutate(Allele = str_sub(Allele, 
+                           start = 1, 
+                           end = 7)) %>%
    distinct(Allele) %>% 
-   map(~str_replace_all(., "\\*", "")) %>% 
-   map(~paste("HLA", ., sep = "-")) %>% 
-   as_tibble() %>% 
-   write_tsv(x = .,
-             file = "~/Bachelor/Bachelorproject/data/HLA.tsv",
-             col_names = FALSE)
+   mutate(Allele = str_replace_all(Allele, "\\*", "") %>% 
+                   paste("HLA", ., sep = "-")) %>% 
+   t() %>% 
+   write.table(x = .,
+               file = "~/Bachelor/Bachelorproject/data/HLA.csv",
+               sep = ",",
+               col.names = FALSE,
+               row.names = FALSE,
+               quote = FALSE)
+
 
 
 # Write data --------------------------------------------------------------
