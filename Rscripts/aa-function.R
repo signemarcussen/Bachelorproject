@@ -5,7 +5,16 @@ library(stringr)
 
 # test data
 a1<-("AXSTGHDF")
+<<<<<<< HEAD
 a2<-("SLIFSYVU")
+=======
+#a11<- c("A", "X", "S", "T", "G", "H", "D", "F")
+a2<-("SLIFSYVU")
+#peptide <- c(a1, a2)
+# pep_split <- str_split(peptide, "") returs a list of vectors w peptide seq split up
+# pep_split[[1]] is the first seq
+# str_detect(amino_acids_1,pep_split[[1]]) #returns T, F, T, T ... 
+>>>>>>> e4aefd0fee3b6429730a1469a80a63310456bcc6
 
 data_subset <- data_subset %>% 
    add_row(Experiment = "A1", Peptide = a1) %>% 
