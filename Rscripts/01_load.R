@@ -82,6 +82,10 @@ HLA_netMHCpan <- data_subset %>%
                row.names = FALSE,
                quote = FALSE)
 
+# Run netMHVpan.R script before this:
+data_complete <- data_subset %>% 
+   select(CDR3b, Peptide) %>% 
+   mutate(HLA = HLA_correct)
 
 
 # Write data --------------------------------------------------------------
