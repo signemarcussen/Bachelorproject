@@ -29,15 +29,19 @@ data_raw <- peptide_detail_ci %>%
           "Amino Acids", 
           matches("HLA"))
 
+
+HLA_X <- c("HLA-A","HLA-A_1","HLA-B","HLA-B_1","HLA-C","HLA-C_1")
 data_clean <- data_raw %>% 
+   drop_na() %>% 
    rename(Peptide = `Amino Acids`) %>% 
    mutate(Peptide = strsplit(Peptide, ",")) %>% 
    unnest(Peptide) %>%  
    separate(col = `TCR BioIdentity`,
             into = "CDR3b",
-            extra = "drop") %>% 
-   mutate(Binding = 1) %>% 
-   mutate(CDR3b_size = nchar(CDR3b))
+            extra = "drop") #%>%
+   #str_sub(data_raw[HLA_X], start = 1, end = 7)
+   #mutate(Binding = 1) %>% 
+   #mutate(CDR3b_size = nchar(CDR3b))
 
 ## Create subset
 set.seed(1234)   
