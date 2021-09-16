@@ -24,15 +24,16 @@ data_clean <- data_raw_combined %>%
    separate(col = `TCR BioIdentity`,
             into = "CDR3b",
             extra = "drop") %>% 
+   filter_at(.vars = vars(CDR3b, Peptide),
+             .vars_predicate = all_vars(str_detect(.,
+                                                   "[^LITSFANMPGKQYVHWDERC]", 
+                                                   negate = TRUE))) %>% 
    drop_na()
 
 # Work with subset
 set.seed(1234)
 data_clean <- data_clean %>% sample_n(50)
 
-### LUCILLE
-#abcde %>% str_detect("[^abcd], negate = TRUE")
-#df %>% filter(str_detect(Peptide, "[^abcd], negate = TRUE"))
 
 HLA_X <- c("HLA-A","HLA-A_1","HLA-B","HLA-B_1","HLA-C","HLA-C_1")
 data_clean[HLA_X] <- data_clean[HLA_X] %>% 
