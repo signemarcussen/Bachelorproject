@@ -10,15 +10,15 @@ library("tidyverse")
 
 
 # Load data ---------------------------------------------------------------
-my_data <- read_tsv(file = ".tsv.gz")
+blosum62_raw <- read.table(file = "data/_raw/BLOSUM62.txt", 
+                           skip = 6)
 
 
 # Wrangle data ------------------------------------------------------------
-my_data_subset <- my_data %>% 
-      filter(...) %>% 
-      select(...) %>% 
-      mutate(...) %>% 
-      arrange(...)
+blosum62 <- blosum62_raw %>% 
+   select(-c("B", "Z", "X", "X.")) %>% 
+   slice(1:(n() - 4))
+
 
 # Model data --------------------------------------------------------------
 
@@ -27,9 +27,3 @@ my_data_subset <- my_data %>%
 
 
 # Write data --------------------------------------------------------------
-ggsave(filename = ".png",
-       plot = ,
-       width = ,
-       height = )
-write_tsv(x = my_data_subset,
-          file = "path/to/my/data_subset.tsv.gz")
