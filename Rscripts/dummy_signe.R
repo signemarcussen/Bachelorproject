@@ -8,12 +8,18 @@ peptides_netMHCpan <- as.list(data_subset$Peptide) %>%
                   file.out = "~/Bachelor/Bachelorproject/data/peptides.fa")
 
 ## Read pMHC_predictions in two files
+allele_names_raw <- read.table(file = "~/Bachelor/Bachelorproject/data/pMHC_predictions.xls", 
+                               sep = "\t",
+                               nrows = 1,
+                               header = TRUE)
 pMHC_raw <- read.table(file = "~/Bachelor/Bachelorproject/data/pMHC_predictions.xls", 
                        sep = "\t",
                        header = TRUE,
                        skip = 1)
 
+## Leons PepTools package
+install.packages("devtools")
+devtools::install_github("leonjessen/PepTools")
+library("PepTools")
+PEPTIDES %>% pep_encode() %>% dim()
 
-pMHP_raw <- read.table(file = "~/Bachelor/Bachelorproject/data/_raw/pMHC_predictions.xls", 
-                       sep = "\t",
-                       header = TRUE)
