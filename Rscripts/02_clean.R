@@ -10,9 +10,14 @@ library("janitor")
 # Load data ---------------------------------------------------------------
 data_raw_combined <- read_tsv(file = "data/01_data_raw_combined.tsv.gz")
 pMHC_raw <- read_tsv(file = "data/01_pMHC_raw.tsv.gz")
-
+blosum62_raw <- read_tsv(file = "data/01_blosum62_raw.tsv.gz")
 
 # Wrangle data ------------------------------------------------------------
+
+##################
+## Peptide data ##
+##################
+
 data_clean <- data_raw_combined %>% 
    select("Experiment",
           "TCR BioIdentity", 
@@ -41,8 +46,10 @@ data_clean[HLA_X] <- data_clean[HLA_X] %>%
 set.seed(1234)
 data_clean <- data_clean %>% sample_n(50)
 
+###############
+## pMHC data ##
+###############
 
-## Wrangle pMHC -----------------------------------------------------------
 col_names <- colnames(pMHC_raw) %>% 
    str_subset(., "HLA") %>% 
    str_replace("HLA.", "") %>%
@@ -60,7 +67,6 @@ pMHC_clean <- pMHC_raw %>%
           matches("el_rank")) %>% 
    rename_at(vars(everything()), 
              function(x) col_names)
-
 
 
 # Write data --------------------------------------------------------------
