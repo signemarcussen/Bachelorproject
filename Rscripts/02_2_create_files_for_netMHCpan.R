@@ -28,7 +28,8 @@ peptides_netMHCpan <- data_clean %>%
    select(Peptide)
 
 
-## Make HLA file
+## Make HLA file - Split in two files since netMHCpan not can handle
+## too many alleles at one time
 HLA_netMHCpan <- data_clean %>% 
    select(matches("HLA")) %>%
    pivot_longer(.,
@@ -39,18 +40,30 @@ HLA_netMHCpan <- data_clean %>%
                            start = 1, 
                            end = 7)) %>%
    distinct(Allele) %>% 
-   #slice(1:93) %>% dette er maks størrelse
    mutate(Allele = str_replace_all(Allele, "\\*", "") %>% 
-             paste("HLA", ., sep = "-")) %>% 
+             paste("HLA", ., sep = "-"))
+
+n <- nrow(HLA_netMHCpan)
+
+HLA_netMHCpan_1 <- HLA_netMHCpan %>% 
+   slice(1:(n / 2)) %>% 
    t()
-   
+HLA_netMHCpan_2 <- HLA_netMHCpan %>% 
+   slice((n / 2 + 1):n) %>% 
+   t()
 
 # Write data --------------------------------------------------------
 write_tsv(peptides_netMHCpan,
-          file = "~/Bachelor/Bachelorproject/data/peptides.pep",
+          file = "data/peptides.pep",
           col_names = FALSE)
-write.table(x = HLA_netMHCpan,
-            file = "~/Bachelor/Bachelorproject/data/HLA.csv",
+write.table(x = HLA_netMHCpan_1,
+            file = "data/HLA_1.csv",
+            sep = ",",
+            col.names = FALSE,
+            row.names = FALSE,
+            quote = FALSE)
+write.table(x = HLA_netMHCpan_2,
+            file = "data/HLA_2.csv",
             sep = ",",
             col.names = FALSE,
             row.names = FALSE,

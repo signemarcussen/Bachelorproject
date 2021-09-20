@@ -10,14 +10,29 @@ library("janitor")
 # Load data ---------------------------------------------------------------
 data_clean <- read_tsv(file = "data/02_data_clean.tsv.gz")
 
-## You must run "create_files_for_netMHCpan.R" to obtain this file:
-pMHC_raw <- read.table(file = "data/_raw/pMHC_predictions.xls", 
-                       sep = "\t",
-                       header = TRUE)
+## You must run "create_files_for_netMHCpan.R" to obtain these files:
+pMHC_raw_1 <- read.table(file = "data/_raw/pMHC_predictions_1.xls", 
+                         sep = "\t",
+                         header = TRUE)
+pMHC_raw_2 <- read.table(file = "data/_raw/pMHC_predictions_2.xls", 
+                         sep = "\t",
+                         header = TRUE)
 
 # Wrangle data ------------------------------------------------------------
 
+# Add ID column and join files
+pMHC_raw_1 <- pMHC_raw_1 %>%
+   mutate(ID = 1:nrow(pMHC_raw_1))
+pMHC_raw_2 <- pMHC_raw_2 %>%
+   mutate(ID = 1:nrow(pMHC_raw_2))
+pMHC_raw_combined <- inner_join(x = pMHC_1,
+                                y = pMHC_2,
+                                by = "ID")
+
+
 ## Clean pMHC data 
+
+
 col_names <- colnames(pMHC_raw) %>% 
    str_subset(., "HLA") %>% 
    str_replace("HLA.", "") %>%
