@@ -39,6 +39,7 @@ HLA_netMHCpan <- data_clean %>%
                            start = 1, 
                            end = 7)) %>%
    distinct(Allele) %>% 
+   #slice(1:93) %>% dette er maks størrelse
    mutate(Allele = str_replace_all(Allele, "\\*", "") %>% 
              paste("HLA", ., sep = "-")) %>% 
    t()

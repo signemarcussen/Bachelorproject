@@ -3,7 +3,7 @@ rm(list = ls())
 
 
 # Load libraries ----------------------------------------------------------
-library("tidyverse")
+suppressWarnings(library("tidyverse"))
 
 
 # Define functions --------------------------------------------------------
@@ -11,6 +11,7 @@ source("Rscripts/99_project_functions.R")
 
 
 # Load data ---------------------------------------------------------------
+data_complete <- read_tsv(file = "data/03_data_complete.tsv.gz")
 blosum62_raw <- read.table(file = "data/_raw/BLOSUM62.txt", 
                            skip = 6)
 
