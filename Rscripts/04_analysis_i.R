@@ -20,11 +20,24 @@ blosum62 <- blosum62_raw %>%
    select(-c("B", "Z", "X", "X.")) %>% 
    slice(1:(n() - 4))
 
-peptides <- data_complete %>% 
-   pull(Peptide)
 
+## Define training and test set
+set.seed(2005)
+data_complete_Xy <- data_complete %>% 
+      mutate(Set = sample(c("train", "test"),
+                          size = nrow(.),
+                          replace = TRUE,
+                          prob = c(0.8, 0.2)))
+
+## View binder and set distribution
+data_complete_Xy %>% 
+      count(Binding, Set)
 
 # Model data --------------------------------------------------------------
+
+
+
+
 blosum_encoding(x = peptides,
                 m = blosum62)
 
