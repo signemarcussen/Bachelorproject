@@ -4,13 +4,14 @@ rm(list = ls())
 
 # Load libraries ----------------------------------------------------------
 suppressWarnings(library("tidyverse"))
+library("janitor")
 
 
 # Load data ---------------------------------------------------------------
 data_clean <- read_tsv(file = "data/02_data_clean.tsv.gz")
 
 ## You must run "create_files_for_netMHCpan.R" to obtain this file:
-pMHC_raw <- read.table(file = "~/Bachelor/Bachelorproject/data/_raw/pMHC_predictions.xls", 
+pMHC_raw <- read.table(file = "data/_raw/pMHC_predictions.xls", 
                        sep = "\t",
                        header = TRUE)
 
