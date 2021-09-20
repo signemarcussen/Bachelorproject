@@ -24,10 +24,22 @@ for (row in 1:nrow(data_clean)) {
 
 data_complete <- data_clean %>% 
    select(CDR3b, Peptide) %>% 
-   mutate(HLA = HLA_correct) %>% 
-   mutate(Binding = 1) %>% 
-   mutate(CDR3b_size = nchar(CDR3b)) %>%    
+   mutate(HLA = HLA_correct,
+          Binding = 1) %>%    
    filter(str_length(Peptide) == 9)
+
+# Mismatching CDR3b with peptide and corresponding HLA
+set.seed(99)
+non_binders <- data_complete %>% 
+   select(CDR3b, Peptide, HLA) %>% 
+   mutate( CDR3b = sample(CDR3b))
+
+data_complete <- bind_rows(data_complete, 
+                                    non_binders) %>% 
+   distinct(., across(- Binding), 
+            .keep_all = TRUE) %>% 
+   mutate(CDR3b_size = nchar(CDR3b)) %>% 
+   replace_na(list(Binding = 0))
 
 # Write data --------------------------------------------------------------
 write_tsv(x = data_complete,
