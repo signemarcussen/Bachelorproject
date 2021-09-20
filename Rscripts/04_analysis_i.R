@@ -17,11 +17,12 @@ blosum62_raw <- read.table(file = "data/_raw/BLOSUM62.txt",
 
 # Wrangle data ------------------------------------------------------------
 blosum62 <- blosum62_raw %>% 
-   select(-c("B", "Z", "X", "X.")) %>% 
-   slice(1:(n() - 4))
+      select(-c("B", "Z", "X", "X.")) %>% 
+      slice(1:(n() - 4)) %>% 
+      as.matrix()
+      
 
-
-## Define training and test set
+## Define training/test set
 set.seed(2005)
 data_complete_Xy <- data_complete %>% 
       mutate(Set = sample(c("train", "test"),
@@ -33,14 +34,28 @@ data_complete_Xy <- data_complete %>%
 data_complete_Xy %>% 
       count(Binding, Set)
 
+## Encode peptides and define training/test matrices
+X_train <- data_complete_Xy %>% 
+      filter(Set == "train") %>% 
+      pull(Peptide) %>% 
+      blosum_encoding(x = .,
+                      m = blosum62)
+X_test <- data_complete_Xy %>% 
+      filter(Set == "test") %>% 
+      pull(Peptide) %>% 
+      blosum_encoding(x = .,
+                      m = blosum62)
+y_train <- data_complete_Xy %>% 
+      filter(Set == "train") %>% 
+      pull(Binding) %>% 
+      to_categorical()
+y_test <- data_complete_Xy %>% 
+      filter(Set == "test") %>% 
+      pull(Binding) %>% 
+      to_categorical()
+
+
 # Model data --------------------------------------------------------------
-
-
-
-
-blosum_encoding(x = peptides,
-                m = blosum62)
-
 
 
 # Visualise data ----------------------------------------------------------
