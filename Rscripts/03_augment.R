@@ -43,9 +43,9 @@ for (row in 1:nrow(data_clean)) {
    alleles <- as.character(data_clean[row, 4:9])
    alleles_score <- subset(x = pMHC_clean, 
                            select = alleles)[row, ]
+   #FAILS when an element in "alleles" is not a column name in pMHC-clean
    HLA_correct <- append(HLA_correct, 
                          colnames(alleles_score)[max.col(alleles_score)])
-   
 }
 
 data_complete <- data_clean %>% 
