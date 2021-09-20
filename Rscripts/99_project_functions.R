@@ -5,9 +5,6 @@
 ## encoding.                                                         ##
 #######################################################################
 
-# x <- peptides
-# m <- blosum62
-
 blosum_encoding <- function(x, m) {
       X_enc <- lapply(strsplit(x, split = ""),
                       function(x_i) { return( c(m[,x_i]) ) })
