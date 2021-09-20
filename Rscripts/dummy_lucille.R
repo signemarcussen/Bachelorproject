@@ -28,4 +28,21 @@ combine <- bind_rows(data_complete1,
             .keep_all = TRUE) %>% 
    mutate(CDR3b_size = nchar(CDR3b)) #%>% 
    #replace_na(select("Binding"), value = 0)
+###############################################################
+data_complete <- data_clean %>% 
+   select(CDR3b, Peptide) %>% 
+   mutate(HLA = HLA_correct,
+          Binding = 1) %>%    
+   filter(str_length(Peptide) == 9)
 
+set.seed(99)
+non_binders <- data_complete %>% 
+   select(CDR3b, Peptide, HLA) %>% 
+   mutate( CDR3b = sample(CDR3b))
+
+data_complete_combined <- bind_rows(data_complete, 
+                     non_binders) %>% 
+   distinct(., across(- Binding), 
+            .keep_all = TRUE) %>% 
+   mutate(CDR3b_size = nchar(CDR3b)) %>% 
+   replace_na(list(Binding = 0))
