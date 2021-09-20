@@ -9,8 +9,7 @@ library("janitor")
 
 # Load data ---------------------------------------------------------------
 data_raw_combined <- read_tsv(file = "data/01_data_raw_combined.tsv.gz")
-pMHC_raw <- read_tsv(file = "data/01_pMHC_raw.tsv.gz")
-blosum62_raw <- read_tsv(file = "data/01_blosum62_raw.tsv.gz")
+
 
 # Wrangle data ------------------------------------------------------------
 
@@ -43,34 +42,10 @@ data_clean[HLA_X] <- data_clean[HLA_X] %>%
    as_tibble()
 
 # Work with subset
-set.seed(1234)
-data_clean <- data_clean %>% sample_n(50)
-
-###############
-## pMHC data ##
-###############
-
-col_names <- colnames(pMHC_raw) %>% 
-   str_subset(., "HLA") %>% 
-   str_replace("HLA.", "") %>%
-   str_replace("\\.", "\\:") %>% 
-   gsub(pattern = "^(.{1})(.*)$",        
-        replacement = "\\1*\\2",
-        x = .) %>% 
-   append("Peptide", 
-          after = 0) 
-
-pMHC_clean <- pMHC_raw %>% 
-   row_to_names(row_number = 1) %>%
-   clean_names() %>% 
-   select("peptide",
-          matches("el_rank")) %>% 
-   rename_at(vars(everything()), 
-             function(x) col_names)
+# set.seed(1234)
+# data_clean <- data_clean %>% sample_n(50)
 
 
 # Write data --------------------------------------------------------------
 write_tsv(x = data_clean,
           file = "data/02_data_clean.tsv.gz")
-write_tsv(x = pMHC_clean,
-          file = "data/02_pMHC_clean.tsv.gz")
