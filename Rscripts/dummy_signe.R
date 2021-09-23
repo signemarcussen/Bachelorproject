@@ -23,3 +23,7 @@ devtools::install_github("leonjessen/PepTools")
 library("PepTools")
 PEPTIDES %>% pep_encode() %>% dim()
 
+## Gamle matching af alleller
+alleles_score <- subset(x = pMHC_clean, 
+                        select = alleles)[row, ]
+

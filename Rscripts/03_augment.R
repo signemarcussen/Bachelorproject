@@ -57,12 +57,34 @@ pMHC_clean <- pMHC_raw_combined[-1,] %>%
 ## Match alleles in the two files and choose the strongest binder for each peptide
 HLA_correct <- c()
 for (row in 1:nrow(data_clean)) {
+   
+   peptide <- data_clean[row, "Peptide"]
    alleles <- as.character(data_clean[row, 4:9])
-   alleles_score <- subset(x = pMHC_clean, 
-                           select = alleles)[row, ]
+   
+   alleles_score <- pMHC_clean %>% 
+      filter(Peptide == as.character(peptide)) %>% 
+      select(any_of(alleles))
+   
    HLA_correct <- append(HLA_correct, 
-                         colnames(alleles_score)[max.col(alleles_score)])
+                         colnames(alleles_score)[apply(alleles_score, 
+                                                       1, 
+                                                       which.min)])
 }
+
+
+
+str_detect(pMHC_clean,
+           all)
+
+apply(data_clean, 1, grep(pattern = alleles,
+                          pMHC_clean))
+
+
+my_function <- function(data_alleles, pmhc_alleles) {
+   pep <- data_alleles[3]
+}
+
+
 
 data_complete <- data_clean %>% 
    select(CDR3b, Peptide) %>% 
