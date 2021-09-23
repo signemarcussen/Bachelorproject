@@ -22,18 +22,18 @@ pMHC_raw_2 <- read.table(file = "data/_raw/pMHC_predictions_2.xls",
 
 # Add ID column and join files
 pMHC_raw_1 <- pMHC_raw_1 %>%
+   as_tibble %>% 
    mutate(ID = 1:nrow(pMHC_raw_1))
 pMHC_raw_2 <- pMHC_raw_2 %>%
+   as_tibble() %>% 
    mutate(ID = 1:nrow(pMHC_raw_2))
-pMHC_raw_combined <- inner_join(x = pMHC_1,
-                                y = pMHC_2,
+pMHC_raw_combined <- inner_join(x = pMHC_raw_1,
+                                y = pMHC_raw_2,
                                 by = "ID")
 
 
-## Clean pMHC data 
-
-
-col_names <- colnames(pMHC_raw) %>% 
+## Extract desired colnames
+col_names <- colnames(pMHC_raw_combined) %>% 
    str_subset(., "HLA") %>% 
    str_replace("HLA.", "") %>%
    str_replace("\\.", "\\:") %>% 
@@ -43,9 +43,11 @@ col_names <- colnames(pMHC_raw) %>%
    append("Peptide", 
           after = 0) 
 
-pMHC_clean <- pMHC_raw %>% 
-   row_to_names(row_number = 1) %>%
-   clean_names() %>% 
+## Keep only peptides, EL_Rank and alleles
+colnames(pMHC_raw_combined) <- sapply(pMHC_raw_combined[1,], 
+                                      as.character) %>% 
+   make_clean_names()
+pMHC_clean <- pMHC_raw_combined[-1,] %>% 
    select("peptide",
           matches("el_rank")) %>% 
    rename_at(vars(everything()), 
@@ -58,7 +60,6 @@ for (row in 1:nrow(data_clean)) {
    alleles <- as.character(data_clean[row, 4:9])
    alleles_score <- subset(x = pMHC_clean, 
                            select = alleles)[row, ]
-   #FAILS when an element in "alleles" is not a column name in pMHC-clean
    HLA_correct <- append(HLA_correct, 
                          colnames(alleles_score)[max.col(alleles_score)])
 }
@@ -66,8 +67,7 @@ for (row in 1:nrow(data_clean)) {
 data_complete <- data_clean %>% 
    select(CDR3b, Peptide) %>% 
    mutate(HLA = HLA_correct,
-          Binding = 1) %>%    
-   filter(str_length(Peptide) == 9)
+          Binding = 1)
 
 
 ## Create non-binders by mismatching CDR3b with peptide and corresponding HLA

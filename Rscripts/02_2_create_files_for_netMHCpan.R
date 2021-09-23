@@ -25,10 +25,11 @@ data_clean <- read_tsv(file = "data/02_data_clean.tsv.gz")
 # Wrangle data -------------------------------------------------------
 ## Make peptide file
 peptides_netMHCpan <- data_clean %>% 
-   select(Peptide)
+   select(Peptide) %>% 
+   distinct()
 
 
-## Make HLA file - Split in two files since netMHCpan not can handle
+## Make HLA file - Split in two files since netMHCpan can't handle
 ## too many alleles at one time
 HLA_netMHCpan <- data_clean %>% 
    select(matches("HLA")) %>%
@@ -36,21 +37,24 @@ HLA_netMHCpan <- data_clean %>%
                 cols = everything(),
                 values_to = "Allele",
                 values_drop_na = TRUE) %>% 
-   mutate(Allele = str_sub(Allele, 
-                           start = 1, 
-                           end = 7)) %>%
    distinct(Allele) %>% 
    mutate(Allele = str_replace_all(Allele, "\\*", "") %>% 
-             paste("HLA", ., sep = "-"))
+             paste("HLA", ., sep = "-")) %>%
+   # Remove alleles that netMHCpan don't recognize
+   filter(str_detect(Allele,
+                     "HLA-C04:09",
+                     negate = TRUE))
+
 
 n <- nrow(HLA_netMHCpan)
 
 HLA_netMHCpan_1 <- HLA_netMHCpan %>% 
-   slice(1:(n / 2)) %>% 
+   slice(1 : round((n / 2))) %>% 
    t()
 HLA_netMHCpan_2 <- HLA_netMHCpan %>% 
-   slice((n / 2 + 1):n) %>% 
+   slice(round((n / 2)) + 1 : n) %>% 
    t()
+
 
 # Write data --------------------------------------------------------
 write_tsv(peptides_netMHCpan,

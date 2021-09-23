@@ -12,11 +12,6 @@ data_raw_combined <- read_tsv(file = "data/01_data_raw_combined.tsv.gz")
 
 
 # Wrangle data ------------------------------------------------------------
-
-##################
-## Peptide data ##
-##################
-
 data_clean <- data_raw_combined %>% 
    select("Experiment",
           "TCR BioIdentity", 
@@ -24,7 +19,8 @@ data_clean <- data_raw_combined %>%
           matches("HLA")) %>% 
    rename(Peptide = `Amino Acids`) %>% 
    mutate(Peptide = strsplit(Peptide, ",")) %>% 
-   unnest(Peptide) %>%
+   unnest(Peptide) %>%    
+   filter(str_length(Peptide) == 9) %>% 
    separate(col = `TCR BioIdentity`,
             into = "CDR3b",
             extra = "drop") %>% 
@@ -42,8 +38,8 @@ data_clean[HLA_X] <- data_clean[HLA_X] %>%
    as_tibble()
 
 # Work with subset
-set.seed(1234)
-data_clean <- data_clean %>% sample_n(50)
+# set.seed(1234)
+# data_clean <- data_clean %>% sample_n(50)
 
 
 # Write data --------------------------------------------------------------
