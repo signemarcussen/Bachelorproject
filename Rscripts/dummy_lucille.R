@@ -1,3 +1,11 @@
+# Work with subset
+set.seed(1234)
+data_clean <- data_clean %>% sample_n(50)
+
+pMHC_clean_longer <- pivot_longer(pMHC_clean, 
+                                  cols = -Peptide, 
+                                  names_to = "Alleles", 
+                                  values_to = "EL_rank")
 
 ### Create non-binders by mismatching ### 
 
