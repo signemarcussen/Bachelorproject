@@ -6,6 +6,8 @@ pMHC_clean_longer <- pivot_longer(pMHC_clean,
                                   cols = -Peptide, 
                                   names_to = "Alleles", 
                                   values_to = "EL_rank")
+data_clean[ ,4:9]
+
 
 ### Create non-binders by mismatching ### 
 
