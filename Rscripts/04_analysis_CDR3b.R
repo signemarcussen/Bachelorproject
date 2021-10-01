@@ -35,11 +35,17 @@ data_complete_Xy <- data_complete %>%
 data_complete_Xy %>% 
       count(Binding, Set)
 
+# View the distrubution of CDR3B_length 
+data_complete %>% count(CDR3b_size)
+
+
 ## Encode peptides and define training/test matrices
 X_train <- data_complete_Xy %>% 
-      filter(Set == "train") %>% 
-      pull(CDR3b) %>% 
-      list()
+      filter(Set == "train",
+             CDR3b_size == 13) %>% 
+      pull(CDR3b)%>% 
+      blosum_encoding(x = .,
+                      m = blosum62)
 
 X_test <- data_complete_Xy %>% 
       filter(Set == "test") %>% 
