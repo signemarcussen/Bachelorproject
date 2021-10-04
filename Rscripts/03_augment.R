@@ -43,6 +43,7 @@ col_names <- colnames(pMHC_raw_combined) %>%
    append("Peptide", 
           after = 0) 
 
+
 ## Keep only peptides, EL_Rank and alleles - and make long format
 colnames(pMHC_raw_combined) <- sapply(pMHC_raw_combined[1,], 
                                       as.character) %>% 
@@ -60,7 +61,7 @@ pMHC_clean <- pMHC_raw_combined[-1,] %>%
 
 
 ## Match peptide and alleles in the two files and keep only binders (EL_Rank < 2)
-data_clean_filtered <- data_clean %>% 
+data_clean_matched <- data_clean %>% 
    pivot_longer(cols = matches("HLA"),
                 values_to = "Allele") %>% 
    select(-name) %>% 
@@ -75,13 +76,13 @@ data_clean_filtered <- data_clean %>%
 
 ## Create non-binders by mismatching CDR3b with peptide and corresponding allele
 set.seed(99)
-non_binders <- data_complete %>% 
+non_binders <- data_clean_matched %>% 
    select(CDR3b, 
           Peptide, 
           Allele) %>% 
    mutate(CDR3b = sample(CDR3b))
 
-data_complete <- bind_rows(data_complete, 
+data_complete <- bind_rows(data_clean_matched, 
                            non_binders) %>% 
    distinct(., 
             across(-Binding), 
@@ -90,6 +91,12 @@ data_complete <- bind_rows(data_complete,
    replace_na(list(Binding = 0))
 
 
+# Subset only HLA-A*02:01
+data_complete_A0201 <- data_complete %>% 
+   filter(Allele == "A*02:01") %>% 
+   select(-Allele)
+
+
 # Write data --------------------------------------------------------------
-write_tsv(x = data_complete,
-          file = "data/03_data_complete.tsv.gz")
+write_tsv(x = data_complete_A0201,
+          file = "data/03_data_complete_A0201.tsv.gz")
