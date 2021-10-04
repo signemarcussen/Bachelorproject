@@ -20,7 +20,7 @@ pMHC_raw_2 <- read.table(file = "data/_raw/pMHC_predictions_2.xls",
 
 # Wrangle data ------------------------------------------------------------
 
-# Add ID column and join files
+# Add ID column and join pMHC files
 pMHC_raw_1 <- pMHC_raw_1 %>%
    as_tibble %>% 
    mutate(ID = 1:nrow(pMHC_raw_1))
@@ -32,7 +32,7 @@ pMHC_raw_combined <- inner_join(x = pMHC_raw_1,
                                 by = "ID")
 
 
-## Extract desired colnames
+## Extract desired column names
 col_names <- colnames(pMHC_raw_combined) %>% 
    str_subset(., "HLA") %>% 
    str_replace("HLA.", "") %>%
@@ -43,61 +43,42 @@ col_names <- colnames(pMHC_raw_combined) %>%
    append("Peptide", 
           after = 0) 
 
-## Keep only peptides, EL_Rank and alleles
+## Keep only peptides, EL_Rank and alleles - and make long format
 colnames(pMHC_raw_combined) <- sapply(pMHC_raw_combined[1,], 
                                       as.character) %>% 
    make_clean_names()
+
 pMHC_clean <- pMHC_raw_combined[-1,] %>% 
    select("peptide",
           matches("el_rank")) %>% 
    rename_at(vars(everything()), 
-             function(x) col_names)
+             function(x) col_names) %>% 
+   pivot_longer(cols = -Peptide, 
+                names_to = "Allele", 
+                values_to = "EL_Rank") %>% 
+   mutate(EL_Rank = as.numeric(as.character(EL_Rank)))
 
 
-## Match alleles in the two files and choose the strongest binder for each peptide
-HLA_correct <- c()
-for (row in 1:nrow(data_clean)) {
-   
-   peptide <- data_clean[row, "Peptide"]
-   alleles <- as.character(data_clean[row, 4:9])
-   
-   alleles_score <- pMHC_clean %>% 
-      filter(Peptide == as.character(peptide)) %>% 
-      select(any_of(alleles))
-   
-   HLA_correct <- append(HLA_correct, 
-                         colnames(alleles_score)[apply(alleles_score, 
-                                                       1, 
-                                                       which.min)])
-}
+## Match peptide and alleles in the two files and keep only binders (EL_Rank < 2)
+data_clean_filtered <- data_clean %>% 
+   pivot_longer(cols = matches("HLA"),
+                values_to = "Allele") %>% 
+   select(-name) %>% 
+   left_join(x = .,
+             y = pMHC_clean, 
+             by = c("Peptide", "Allele")) %>% 
+   filter(EL_Rank <= 2) %>% 
+   distinct() %>% 
+   select(-Experiment, -EL_Rank) %>% 
+   mutate(Binding = 1)
 
 
-
-str_detect(pMHC_clean,
-           all)
-
-apply(data_clean, 1, grep(pattern = alleles,
-                          pMHC_clean))
-
-
-my_function <- function(data_alleles, pmhc_alleles) {
-   pep <- data_alleles[3]
-}
-
-
-
-data_complete <- data_clean %>% 
-   select(CDR3b, Peptide) %>% 
-   mutate(HLA = HLA_correct,
-          Binding = 1)
-
-
-## Create non-binders by mismatching CDR3b with peptide and corresponding HLA
+## Create non-binders by mismatching CDR3b with peptide and corresponding allele
 set.seed(99)
 non_binders <- data_complete %>% 
    select(CDR3b, 
           Peptide, 
-          HLA) %>% 
+          Allele) %>% 
    mutate(CDR3b = sample(CDR3b))
 
 data_complete <- bind_rows(data_complete, 

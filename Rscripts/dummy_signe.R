@@ -27,3 +27,47 @@ PEPTIDES %>% pep_encode() %>% dim()
 alleles_score <- subset(x = pMHC_clean, 
                         select = alleles)[row, ]
 
+
+## Subset --------------
+
+set.seed(1234)
+data_subset <- data_clean %>% sample_n(50)
+
+## Only peptides binding to HLA-A*02:01 ------------
+pMHC_clean_A0201 <- pMHC_clean %>% 
+   select(Peptide, `A*02:01`) %>% 
+   mutate(`A*02:01` = as.numeric(as.character(`A*02:01`))) %>% 
+   filter(`A*02:01` < 2)
+
+## Match alleles in the two files and choose the strongest binder for each peptide
+HLA_correct <- c()
+for (row in 1:nrow(data_clean)) {
+   
+   peptide <- data_clean[row, "Peptide"]
+   alleles <- as.character(data_clean[row, 4:9])
+   
+   alleles_score <- pMHC_clean %>% 
+      filter(Peptide == as.character(peptide)) %>% 
+      select(any_of(alleles))
+   
+   HLA_correct <- append(HLA_correct, 
+                         colnames(alleles_score)[apply(alleles_score, 
+                                                       1, 
+                                                       which.min)])
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
