@@ -32,12 +32,13 @@ data_A0201_Xy <- data_A0201 %>%
       mutate(Set = sample(c("train", "test"),
                           size = nrow(.),
                           replace = TRUE,
-                          prob = c(0.8, 0.2)))
+                          prob = c(0.8, 0.2))) %>% 
+   drop_na()
 
 data_A0201_Xy1 <- data_A0201_Xy %>% sample_n(190)
 
 #Padding short sequences with "X"
-pad_data_A0201_Xy <- data_A0201_Xy1 %>% 
+pad_data_A0201_Xy <- data_A0201_Xy %>% 
    mutate(CDR3b = str_pad(string = CDR3b, 
                           width = max(nchar(CDR3b)), 
                           side="right", pad="X"))

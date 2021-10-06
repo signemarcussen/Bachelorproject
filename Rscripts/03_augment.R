@@ -90,7 +90,6 @@ data_complete <- bind_rows(data_clean_matched,
    mutate(CDR3b_size = nchar(CDR3b)) %>% 
    replace_na(list(Binding = 0))
 
-
 # Subset only HLA-A*02:01
 data_complete_A0201 <- data_complete %>% 
    filter(Allele == "A*02:01") %>% 
