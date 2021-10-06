@@ -31,18 +31,21 @@ data_A0201_Xy <- data_A0201 %>%
                           replace = TRUE,
                           prob = c(0.8, 0.2)))
 
+data_A0201_Xy1 <- data_A0201_Xy %>% sample_n(1900)
+
+#Padding short sequences with "X"
+pad_data_A0201_Xy <- data_A0201_Xy1 %>% 
+   mutate(CDR3b = str_pad(string = CDR3b, 
+                          width = max(nchar(CDR3b)), 
+                          side="right", pad="X"))
+
 ## View binder and set distribution
 data_A0201_Xy %>% 
       count(Binding, Set)
 
-# View the distrubution of CDR3B_length 
-data_A0201_Xy %>% count(CDR3b_size)
-
-
 ## Encode peptides and define training/test matrices
-X_train <- data_A0201_Xy %>% 
-      filter(Set == "train",
-             CDR3b_size == 13) %>% 
+X_train <- pad_data_A0201_Xy %>% 
+      filter(Set == "train") %>% 
       pull(CDR3b)%>% 
       blosum_encoding(x = .,
                       m = blosum62)

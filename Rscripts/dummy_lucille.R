@@ -15,10 +15,13 @@ data_binder <- data.frame(x1 = 1:10, x2 = LETTERS[1:10], b = 1) %>%
    as_tibble()
 
 set.seed(9)
-non_binder <- data %>% mutate( x1 = sample(x1))
+non_binder <- data_binder %>% 
+   select(x1,x2) %>% 
+   mutate(x1 = sample(x1))
 
 combine <- bind_rows(data_binder, non_binder) %>% 
-   distinct(combine, across(-b), .keep_all = TRUE)
+   distinct(., across(-b), .keep_all = TRUE) %>% 
+   replace_na(list(b = 0))
 
 #brug distint across alt andet end binding. c(-binding)
 #distinct(starwars, across(contains("color")))
