@@ -4,6 +4,7 @@ rm(list = ls())
 
 # Load libraries ----------------------------------------------------------
 suppressWarnings(library("tidyverse"))
+library("keras")
 
 
 # Define functions --------------------------------------------------------
@@ -17,6 +18,7 @@ source("Rscripts/99_project_functions.R")
 
 
 # Model data --------------------------------------------------------------
+layer_concatenate(inputs = )
 
 
 # Visualise data ----------------------------------------------------------

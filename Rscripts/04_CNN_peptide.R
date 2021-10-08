@@ -4,6 +4,9 @@ rm(list = ls())
 
 # Load libraries ----------------------------------------------------------
 suppressWarnings(library("tidyverse"))
+library("tensorflow")
+library("keras")
+library("reticulate")
 
 
 # Define functions --------------------------------------------------------
@@ -48,15 +51,63 @@ X_test <- data_A0201_Xy %>%
                       m = blosum62)
 y_train <- data_A0201_Xy %>% 
       filter(Set == "train") %>% 
-      pull(Binding) %>% 
-      to_categorical()
+      pull(Binding) #%>% 
+      #to_categorical()
 y_test <- data_A0201_Xy %>% 
       filter(Set == "test") %>% 
-      pull(Binding) %>% 
-      to_categorical()
+      pull(Binding)# %>% 
+      #to_categorical()
 
 
 # Model data --------------------------------------------------------------
+
+## Set hyperparameters
+n_epochs <- 15 #300 / 50
+batch_size <- 128
+loss_func <- "binary_crossentropy"
+learn_rate <- 0.001
+input_shape <- c(9, 20)
+
+## Set model structure
+cnn_model <- keras_model_sequential() %>% 
+   layer_conv_1d(filters = c(16),
+                 kernel_size = c(3),
+                 activation = "sigmoid",
+                 input_shape = c(9, 20)) #%>% 
+   #layer_max_pooling_1d(pool_size = 2)
+    
+## Compile model
+cnn_model %>% 
+   compile(loss = loss_func,
+           optimizer = optimizer_adam(learning_rate = learn_rate),
+           metrics = c("accuracy"))
+
+## View model
+cnn_model %>% summary()
+
+
+## Train model
+cnn_history <- cnn_model %>% 
+   fit(X_train,
+       y_train,
+       batch_size = batch_size,
+       epochs = n_epochs,
+       validation_split = 0.2)
+
+
+## Evaluate model
+performance_test <- model %>% 
+   evaluate(X_test, y_test)
+accuracy_test <- performance_test %>% 
+   pluck("accuracy") %>% 
+   round(3) * 100
+
+performance_train <- model %>% 
+   evaluate(X_train, y_train)
+accuracy_train <- performance_train %>% 
+   pluck("accuracy") %>% 
+   round(3) * 100
+
 
 
 # Visualise data ----------------------------------------------------------
