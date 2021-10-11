@@ -95,6 +95,9 @@ data_complete_A0201 <- data_complete %>%
    filter(Allele == "A*02:01") %>% 
    select(-Allele)
 
+## View number of unique peptides and CDR3b sequences
+data_complete_A0201 %>% distinct(Peptide)
+data_complete_A0201 %>% distinct(CDR3b)
 
 # Write data --------------------------------------------------------------
 write_tsv(x = data_complete_A0201,

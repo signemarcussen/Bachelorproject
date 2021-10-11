@@ -3,10 +3,15 @@ rm(list = ls())
 
 
 # Load libraries ----------------------------------------------------------
+install.packages("keras")
+library(keras)
+install_keras()
 suppressWarnings(library("tidyverse"))
-library("tensorflow")
+#library("tensorflow")
 library("keras")
-library("reticulate")
+#library("reticulate")
+library(tidyverse)
+library(PepTools)
 
 
 # Define functions --------------------------------------------------------
@@ -38,48 +43,63 @@ data_A0201_Xy <- data_A0201 %>%
 data_A0201_Xy %>% 
       count(Binding, Set)
 
-## Encode peptides and define training/test matrices
+## Encode peptides and define training/test
 X_train <- data_A0201_Xy %>% 
-      filter(Set == "train") %>% 
-      pull(Peptide) %>% 
-      blosum_encoding(x = .,
-                      m = blosum62)
-X_test <- data_A0201_Xy %>% 
-      filter(Set == "test") %>% 
-      pull(Peptide) %>% 
-      blosum_encoding(x = .,
-                      m = blosum62)
-y_train <- data_A0201_Xy %>% 
-      filter(Set == "train") %>% 
-      pull(Binding)
-y_test <- data_A0201_Xy %>% 
-      filter(Set == "test") %>% 
-      pull(Binding)
+   filter(Set == "train") %>% 
+   pull(Peptide) %>% 
+   pep_encode_Signe(pep = ., matrix = blosum62) %>% 
+   array_reshape(., c(nrow(.), 9, 20, 1))
 
+X_test <- data_A0201_Xy %>% 
+   filter(Set == "test") %>% 
+   pull(Peptide) %>% 
+   pep_encode_Signe(pep = ., matrix = blosum62) %>% 
+   array_reshape(., c(nrow(.), 9, 20, 1))
+
+y_train <- data_A0201_Xy %>% 
+   filter(Set == "train") %>% 
+    pull(Binding) #%>% 
+    # array %>% 
+    # to_categorical() #%>% 
+   # array_reshape(., c(nrow(.), 1))
+y_test <- data_A0201_Xy %>% 
+   filter(Set == "test") %>% 
+   pull(Binding) #%>% 
+   # array %>% 
+   # to_categorical() #%>% 
+   # array_reshape(., c(nrow(.), 1))
 
 
 # Model data --------------------------------------------------------------
 
 ## Set hyperparameters
-n_epochs <- 15 #300 / 50
-batch_size <- 128
+n_epochs <- 100 #300 / 50
+batch_size <- 50
 loss_func <- "binary_crossentropy"
 learn_rate <- 0.001
-input_shape <- c(9, 20)
+input_shape <- c(9, 20, 1)
 
-## Set model structure
+## Build model architecture
 cnn_model <- keras_model_sequential() %>% 
-   layer_conv_1d(filters = c(16),
-                 kernel_size = c(3),
-                 activation = "sigmoid",
-                 input_shape = c(9, 20)) #%>% 
-   #layer_max_pooling_1d(pool_size = 2)
+   layer_conv_2d(filters = 32,
+                 kernel_size = c(3, 3),
+                 activation = "relu",
+                 input_shape = input_shape) %>% 
+   layer_dropout(rate = 0.25) %>% 
+   layer_flatten() %>% 
+   layer_dense(units  = 20, activation = 'relu') %>% 
+   layer_dropout(rate = 0.4) %>% 
+   layer_dense(units  = 10, activation  = 'relu') %>%
+   layer_dropout(rate = 0.3) %>%
+   layer_dense(units  = 3, activation   = 'softmax')
     
 ## Compile model
 cnn_model %>% 
    compile(loss = loss_func,
-           optimizer = optimizer_adam(learning_rate = learn_rate),
-           metrics = c("accuracy"))
+           optimizer = "adam",
+           metrics = "accuracy")
+
+#optimizer_adam(learning_rate = learn_rate)
 
 ## View model
 cnn_model %>% summary()
@@ -94,18 +114,18 @@ cnn_history <- cnn_model %>%
        validation_split = 0.2)
 
 
-## Evaluate model
-performance_test <- model %>% 
-   evaluate(X_test, y_test)
-accuracy_test <- performance_test %>% 
-   pluck("accuracy") %>% 
-   round(3) * 100
-
-performance_train <- model %>% 
-   evaluate(X_train, y_train)
-accuracy_train <- performance_train %>% 
-   pluck("accuracy") %>% 
-   round(3) * 100
+# ## Evaluate model
+# performance_test <- model %>% 
+#    evaluate(X_test, y_test)
+# accuracy_test <- performance_test %>% 
+#    pluck("accuracy") %>% 
+#    round(3) * 100
+# 
+# performance_train <- model %>% 
+#    evaluate(X_train, y_train)
+# accuracy_train <- performance_train %>% 
+#    pluck("accuracy") %>% 
+#    round(3) * 100
 
 
 
