@@ -61,13 +61,11 @@ X_test <- data_A0201_Xy %>%
                       m = blosum62)
 y_train <- data_A0201_Xy %>% 
       filter(Set == "train") %>% 
-      pull(Binding) %>% 
-      to_categorical()
+      pull(Binding)
 
 y_test <- data_A0201_Xy %>% 
       filter(Set == "test") %>% 
-      pull(Binding) %>% 
-      to_categorical()
+      pull(Binding) 
 
 
 # Model data --------------------------------------------------------------
