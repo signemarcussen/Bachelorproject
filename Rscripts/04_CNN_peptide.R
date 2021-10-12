@@ -3,15 +3,11 @@ rm(list = ls())
 
 
 # Load libraries ----------------------------------------------------------
-install.packages("keras")
-library(keras)
-install_keras()
 suppressWarnings(library("tidyverse"))
 #library("tensorflow")
 library("keras")
 #library("reticulate")
-library(tidyverse)
-library(PepTools)
+suppressWarnings(library(PepTools))
 
 
 # Define functions --------------------------------------------------------
