@@ -22,7 +22,7 @@ pep_encode = function(pep){
    pep_check(pep = pep)
    
    # Set encoding matrix
-   bl62_prob = BLOSUM62_PROB
+   bl62_prob = blosum62
    
    # Then we convert the vector of peptides to a matrix
    # with dimensions 'm x n' = 'n_peps x length_peps'

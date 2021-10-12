@@ -5,6 +5,7 @@ rm(list = ls())
 # Load libraries ----------------------------------------------------------
 suppressWarnings(library("tidyverse"))
 library(keras)
+library(PepTools)
 
 # Define functions --------------------------------------------------------
 source("Rscripts/99_project_functions.R")
@@ -35,8 +36,6 @@ data_A0201_Xy <- data_A0201 %>%
                           prob = c(0.8, 0.2))) %>% 
    drop_na()
 
-data_A0201_Xy1 <- data_A0201_Xy %>% sample_n(190)
-
 #Padding short sequences with "X"
 pad_data_A0201_Xy <- data_A0201_Xy %>% 
    mutate(CDR3b = str_pad(string = CDR3b, 
@@ -48,17 +47,30 @@ data_A0201_Xy %>%
       count(Binding, Set)
 
 ## Encode peptides and define training/test matrices
+### Using pep_encode, to create 3D tensor of the CDR3b sequences
+### with dimensions n_peps x l_peps x l_enc, this is converted to a 1D array. 
+### so the first l_peps x l_enc entries correspond to one seq.
+
 X_train <- pad_data_A0201_Xy %>% 
       filter(Set == "train") %>% 
       pull(CDR3b)%>% 
-      blosum_encoding(x = .,
-                      m = blosum62)
+      pep_encode(pep = .) %>% 
+      array_reshape(., c(nrow(.), 25, 21, 1))
+#Before reshape: 
+#dim(X_train) = 158396 -seqs     25-lenght of seqs    21-cols in Blosum62
+
+X_test <- data_A0201_Xy %>% 
+   filter(Set == "test") %>% 
+   pull(Peptide) %>% 
+   pep_encode_Signe(pep = ., matrix = blosum62) %>% 
+   array_reshape(., c(nrow(.), 9, 20, 1))
 
 X_test <- data_A0201_Xy %>% 
       filter(Set == "test") %>% 
       pull(CDR3b) %>% 
       blosum_encoding(x = .,
                       m = blosum62)
+
 y_train <- data_A0201_Xy %>% 
       filter(Set == "train") %>% 
       pull(Binding)
