@@ -58,6 +58,8 @@ y_train <- data_A0201_Xy %>%
     # array %>% 
     # to_categorical() #%>% 
    # array_reshape(., c(nrow(.), 1))
+yy_train <- array(y_train, dim = c(length(y_train),1))
+
 y_test <- data_A0201_Xy %>% 
    filter(Set == "test") %>% 
    pull(Binding) #%>% 
@@ -70,7 +72,8 @@ y_test <- data_A0201_Xy %>%
 
 ## Set hyperparameters
 n_epochs <- 100 #300 / 50
-batch_size <- 50
+#batch_size <- 50
+batch_size <- 158402 #nrow(yy_train)
 loss_func <- "binary_crossentropy"
 learn_rate <- 0.001
 input_shape <- c(9, 20, 1)
@@ -103,8 +106,8 @@ cnn_model %>% summary()
 
 ## Train model
 cnn_history <- cnn_model %>% 
-   fit(X_train,
-       y_train,
+   fit(x = X_train,
+       y = yy_train,
        batch_size = batch_size,
        epochs = n_epochs,
        validation_split = 0.2)
