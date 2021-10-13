@@ -3,9 +3,9 @@ rm(list = ls())
 
 
 # Load libraries ----------------------------------------------------------
+library("keras")
 suppressWarnings(library("tidyverse"))
 #library("tensorflow")
-library("keras")
 #library("reticulate")
 suppressWarnings(library(PepTools))
 
@@ -54,17 +54,18 @@ X_test <- data_A0201_Xy %>%
 
 y_train <- data_A0201_Xy %>% 
    filter(Set == "train") %>% 
-    pull(Binding) #%>% 
-    # array %>% 
-    # to_categorical() #%>% 
-   # array_reshape(., c(nrow(.), 1))
-yy_train <- array(y_train, dim = c(length(y_train),1))
+    pull(Binding) %>% 
+    array %>% 
+    to_categorical(num_classes = 2)# %>% 
+  # array_reshape(., c(nrow(.), 1))
+
+#yy_train <- array(y_train, dim = c(length(y_train),1))
 
 y_test <- data_A0201_Xy %>% 
    filter(Set == "test") %>% 
-   pull(Binding) #%>% 
-   # array %>% 
-   # to_categorical() #%>% 
+   pull(Binding) %>% 
+    array %>% 
+    to_categorical() #%>% 
    # array_reshape(., c(nrow(.), 1))
 
 
@@ -72,8 +73,8 @@ y_test <- data_A0201_Xy %>%
 
 ## Set hyperparameters
 n_epochs <- 100 #300 / 50
-#batch_size <- 50
-batch_size <- 158402 #nrow(yy_train)
+batch_size <- 50
+#batch_size <- 158402 #nrow(yy_train)
 loss_func <- "binary_crossentropy"
 learn_rate <- 0.001
 input_shape <- c(9, 20, 1)
@@ -82,19 +83,21 @@ input_shape <- c(9, 20, 1)
 cnn_model <- keras_model_sequential() %>% 
    layer_conv_2d(filters = 32,
                  kernel_size = c(3, 3),
-                 activation = "relu",
+                 activation = 'relu',
                  input_shape = input_shape) %>% 
    layer_dropout(rate = 0.25) %>% 
    layer_flatten() %>% 
-   layer_dense(units  = 20, activation = 'relu') %>% 
+   #layer_dense(units  = 20, activation = 'relu') %>% 
+   layer_dense(units  = 180, activation = 'relu') %>% 
    layer_dropout(rate = 0.4) %>% 
-   layer_dense(units  = 10, activation  = 'relu') %>%
+   #layer_dense(units  = 10, activation  = 'relu') %>%
+   layer_dense(units  = 90, activation  = 'relu') %>%
    layer_dropout(rate = 0.3) %>%
    layer_dense(units  = 3, activation   = 'softmax')
     
 ## Compile model
 cnn_model %>% 
-   compile(loss = loss_func,
+   compile(loss = 'binary_crossentropy',
            optimizer = "adam",
            metrics = "accuracy")
 
@@ -107,9 +110,9 @@ cnn_model %>% summary()
 ## Train model
 cnn_history <- cnn_model %>% 
    fit(x = X_train,
-       y = yy_train,
-       batch_size = batch_size,
+       y = y_train,
        epochs = n_epochs,
+       batch_size = batch_size,
        validation_split = 0.2)
 
 
