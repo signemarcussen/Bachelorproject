@@ -87,15 +87,13 @@ cnn_model <- keras_model_sequential() %>%
    layer_dropout(rate = 0.4) %>% 
    layer_dense(units  = 10, activation  = 'relu') %>%
    layer_dropout(rate = 0.3) %>%
-   layer_dense(units  = 3, activation   = 'softmax')
+   layer_dense(units  = 1, activation   = 'sigmoid')
     
 ## Compile model
 cnn_model %>% 
    compile(loss = loss_func,
            optimizer = "adam",
            metrics = "accuracy")
-
-#optimizer_adam(learning_rate = learn_rate)
 
 ## View model
 cnn_model %>% summary()
