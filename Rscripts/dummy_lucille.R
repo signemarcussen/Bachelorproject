@@ -1,27 +1,36 @@
 # Work with subset
 set.seed(1234)
-data_clean <- data_clean %>% sample_n(50)
-
-pMHC_clean_longer <- pivot_longer(pMHC_clean, 
-                                  cols = -Peptide, 
-                                  names_to = "Alleles", 
-                                  values_to = "EL_rank")
-data_clean[ ,4:9]
-
+#data_clean <- data_clean %>% sample_n(50)
 
 ### Create non-binders by mismatching ### 
 
-data_binder <- data.frame(x1 = 1:10, x2 = LETTERS[1:10], b = 1) %>% 
-   as_tibble()
+data_binder <- data.frame(CDR3b = LETTERS[1:10], 
+                          Peptide = LETTERS[1:10],
+                          Allele = LETTERS[1:10],
+                          Binding = 1) %>% 
+   as_tibble() %>% mutate(across(where(is.factor), as.character))
 
-set.seed(9)
-non_binder <- data_binder %>% 
-   select(x1,x2) %>% 
-   mutate(x1 = sample(x1))
+data_binder
 
-combine <- bind_rows(data_binder, non_binder) %>% 
-   distinct(., across(-b), .keep_all = TRUE) %>% 
-   replace_na(list(b = 0))
+non_binder <- c()
+data_binder1 <- data_binder %>% 
+   select(-Binding)
+
+for (iRow in 1:nrow(data_binder1)) {
+   
+   obs <- c(sample(data_binder$CDR3b,1), 
+            data_binder$Peptide[iRow],
+            data_binder$Allele[iRow])
+   
+   if (obs[iRow] == data_binder1[iRow,1]) {
+     #If CDR3b seq is the same  
+   } 
+   
+   #non_binder <- data_binder$CDR3b[i]
+   
+}
+
+print(non_binder)
 
 #brug distint across alt andet end binding. c(-binding)
 #distinct(starwars, across(contains("color")))
