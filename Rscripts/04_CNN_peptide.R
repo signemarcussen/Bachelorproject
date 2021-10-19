@@ -54,19 +54,11 @@ X_test <- data_A0201_Xy %>%
 
 y_train <- data_A0201_Xy %>% 
    filter(Set == "train") %>% 
-    pull(Binding) %>% 
-    array %>% 
-    to_categorical(num_classes = 2)# %>% 
-  # array_reshape(., c(nrow(.), 1))
-
-#yy_train <- array(y_train, dim = c(length(y_train),1))
+    pull(Binding)
 
 y_test <- data_A0201_Xy %>% 
    filter(Set == "test") %>% 
-   pull(Binding) %>% 
-    array %>% 
-    to_categorical() #%>% 
-   # array_reshape(., c(nrow(.), 1))
+   pull(Binding)
 
 
 # Model data --------------------------------------------------------------
