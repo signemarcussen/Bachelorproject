@@ -56,10 +56,31 @@ for (row in 1:nrow(data_clean)) {
                                                        which.min)])
 }
 
+## Create non-binder data
+NB <- c()
+names(NB) <- c("CDR3b", "Peptide", "Allele")
+while (TRUE) {
+   
+   for (i in 1:nrow(data_clean_matched)) {
+      pep <- data_clean_matched$Peptide[i]
+      allele <- data_clean_matched$Allele[i]
+      sample(Peptide, Allele)
+      if 
+   }
+   
+   sample(CDR3b)
+   
+   
+   
+   if (nrow(NB) == nrow(data_clean_matched)) 
+      return(NB)
+}
 
 
-
-
+while (FALSE) {
+   cdr <- data_clean_matched %>% sample(1)
+   if (cdr )
+}
 
 
 
