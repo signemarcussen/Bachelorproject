@@ -39,7 +39,7 @@ data_A0201_Xy <- data_A0201 %>%
 data_A0201_Xy %>% 
       count(Binding, Set)
 
-## Encode peptides and define training/test
+## Encode peptides and define training/test matrices
 X_train <- data_A0201_Xy %>% 
    filter(Set == "train") %>% 
    pull(Peptide) %>% 
@@ -61,11 +61,14 @@ y_test <- data_A0201_Xy %>%
    pull(Binding)
 
 
+## 
+
+
 # Model data --------------------------------------------------------------
 
 ## Set hyperparameters
-n_epochs <- 100 #300 / 50
-batch_size <- 50
+n_epochs <- 10 #300 / 50
+batch_size <- 500
 #batch_size <- 158402 #nrow(yy_train)
 loss_func <- "binary_crossentropy"
 learn_rate <- 0.001
@@ -73,24 +76,22 @@ input_shape <- c(9, 20, 1)
 
 ## Build model architecture
 cnn_model <- keras_model_sequential() %>% 
-   layer_conv_2d(filters = 32,
+   layer_conv_2d(filters = 16,
                  kernel_size = c(3, 3),
                  activation = 'relu',
-                 input_shape = input_shape) %>% 
-   layer_dropout(rate = 0.25) %>% 
+                 input_shape = input_shape) %>%
+   #layer_dropout(rate = 0.25) %>% 
    layer_flatten() %>% 
-   #layer_dense(units  = 20, activation = 'relu') %>% 
-   layer_dense(units  = 180, activation = 'relu') %>% 
-   layer_dropout(rate = 0.4) %>% 
+   #layer_dense(units  = 180, activation = 'relu') %>% 
+   #layer_dropout(rate = 0.4) %>% 
    #layer_dense(units  = 10, activation  = 'relu') %>%
-   layer_dense(units  = 90, activation  = 'relu') %>%
-   layer_dropout(rate = 0.3) %>%
+   #layer_dropout(rate = 0.3) %>%
    layer_dense(units  = 1, activation   = 'sigmoid')
     
 ## Compile model
 cnn_model %>% 
-   compile(loss = 'binary_crossentropy',
-           optimizer = "adam",
+   compile(loss = loss_func,
+           optimizer = optimizer_rmsprop(learning_rate = learn_rate),
            metrics = "accuracy")
 
 ## View model
