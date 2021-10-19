@@ -67,7 +67,7 @@ y_test <- data_A0201_Xy %>%
 # Model data --------------------------------------------------------------
 
 ## Set hyperparameters
-n_epochs <- 10 #300 / 50
+n_epochs <- 5 #300 / 50
 batch_size <- 500
 #batch_size <- 158402 #nrow(yy_train)
 loss_func <- "binary_crossentropy"
@@ -76,16 +76,21 @@ input_shape <- c(9, 20, 1)
 
 ## Build model architecture
 cnn_model <- keras_model_sequential() %>% 
-   layer_conv_2d(filters = 16,
+   layer_conv_2d(filters = 32,
                  kernel_size = c(3, 3),
                  activation = 'relu',
                  input_shape = input_shape) %>%
+   layer_max_pooling_2d(pool_size = c(2,2)) %>% 
+   layer_conv_2d(filters = 64,
+                 kernel_size = c(3, 3),
+                 activation = 'relu') %>%
    #layer_dropout(rate = 0.25) %>% 
    layer_flatten() %>% 
    #layer_dense(units  = 180, activation = 'relu') %>% 
    #layer_dropout(rate = 0.4) %>% 
    #layer_dense(units  = 10, activation  = 'relu') %>%
    #layer_dropout(rate = 0.3) %>%
+   layer_dense(units = 10, activation = "relu") %>% 
    layer_dense(units  = 1, activation   = 'sigmoid')
     
 ## Compile model
@@ -119,7 +124,6 @@ cnn_history <- cnn_model %>%
 # accuracy_train <- performance_train %>% 
 #    pluck("accuracy") %>% 
 #    round(3) * 100
-
 
 
 # Visualise data ----------------------------------------------------------
