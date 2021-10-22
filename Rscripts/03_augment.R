@@ -92,37 +92,44 @@ non_binders <- data_A0201 %>%
 duplicates <- inner_join(data_A0201,
                          non_binders,
                          by = c("CDR3b", "Peptide"))
-
+# Keep only correct mismatches
+non_binders <- anti_join(non_binders,
+                         data_A0201)
 
 # Make new and unique combinations of all duplicates
+all_unique <- bind_rows(data_A0201,
+                        non_binders)
 set.seed(100)
 for (i in 1:nrow(duplicates)) {
    
    duplicates$CDR3b[i] <- sample(all_CDR3b, 1)
    
-   while (do.call(paste0, slice(duplicates, i)) %in% do.call(paste0, data_A0201)) {
+   while (do.call(paste0, slice(duplicates, i)) %in% do.call(paste0, all_unique)) {
+      
       duplicates$CDR3b[i] <- sample(all_CDR3b, 1)
+      
    } 
-   print(i)
+   
+   print(paste0(i, "/", nrow(duplicates)))
+   
 }
 
+
+## Complete data
 data_A0201 <- data_A0201 %>% 
    mutate(Binding = 1)
 
-data_complete <- bind_rows(data_A0201, 
-                           non_binders,
-                           duplicates) %>% 
-   # distinct(., 
-   #          across(-Binding), 
-   #          .keep_all = TRUE) %>% 
+data_A0201_complete <- bind_rows(data_A0201, 
+                                 non_binders,
+                                 duplicates) %>% 
    mutate(CDR3b_size = nchar(CDR3b)) %>% 
    replace_na(list(Binding = 0))
 
 
 ## View number of unique peptides and CDR3b sequences
-data_complete_A0201 %>% distinct(Peptide)
-data_complete_A0201 %>% distinct(CDR3b)
+data_A0201_complete %>% distinct(Peptide)
+data_A0201_complete %>% distinct(CDR3b)
 
 # Write data --------------------------------------------------------------
-write_tsv(x = data_complete_A0201,
-          file = "data/03_data_complete_A0201.tsv.gz")
+write_tsv(x = data_A0201_complete,
+          file = "data/03_data_A0201_complete.tsv.gz")
