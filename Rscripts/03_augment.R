@@ -70,30 +70,54 @@ data_clean_matched <- data_clean %>%
              by = c("Peptide", "Allele")) %>% 
    filter(EL_Rank <= 2) %>% 
    distinct() %>% 
-   select(-Experiment, -EL_Rank) %>% 
-   mutate(Binding = 1)
+   select(-Experiment, -EL_Rank)
 
+# Remove duplicates?
+data_clean_matched <- data_clean_matched %>% 
+   distinct()
+
+## Subset only HLA-A*02:01
+data_A0201 <- data_clean_matched %>% 
+   filter(Allele == "A*02:01") %>% 
+   select(-Allele)
 
 ## Create non-binders by mismatching CDR3b with peptide and corresponding allele
-set.seed(99)
-non_binders <- data_clean_matched %>% 
-   select(CDR3b, 
-          Peptide, 
-          Allele) %>% 
-   mutate(CDR3b = sample(CDR3b))
+all_CDR3b <- data_clean_matched %>% pull(CDR3b)
 
-data_complete <- bind_rows(data_clean_matched, 
-                           non_binders) %>% 
-   distinct(., 
-            across(-Binding), 
-            .keep_all = TRUE) %>% 
+set.seed(100)
+non_binders <- data_A0201 %>%
+   mutate(CDR3b = sample(all_CDR3b, 
+                         size = nrow(data_A0201)))
+
+duplicates <- inner_join(data_A0201,
+                         non_binders,
+                         by = c("CDR3b", "Peptide"))
+
+
+# Make new and unique combinations of all duplicates
+set.seed(100)
+for (i in 1:nrow(duplicates)) {
+   
+   duplicates$CDR3b[i] <- sample(all_CDR3b, 1)
+   
+   while (do.call(paste0, slice(duplicates, i)) %in% do.call(paste0, data_A0201)) {
+      duplicates$CDR3b[i] <- sample(all_CDR3b, 1)
+   } 
+   print(i)
+}
+
+data_A0201 <- data_A0201 %>% 
+   mutate(Binding = 1)
+
+data_complete <- bind_rows(data_A0201, 
+                           non_binders,
+                           duplicates) %>% 
+   # distinct(., 
+   #          across(-Binding), 
+   #          .keep_all = TRUE) %>% 
    mutate(CDR3b_size = nchar(CDR3b)) %>% 
    replace_na(list(Binding = 0))
 
-# Subset only HLA-A*02:01
-data_complete_A0201 <- data_complete %>% 
-   filter(Allele == "A*02:01") %>% 
-   select(-Allele)
 
 ## View number of unique peptides and CDR3b sequences
 data_complete_A0201 %>% distinct(Peptide)

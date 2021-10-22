@@ -62,6 +62,7 @@ names(NB) <- c("CDR3b", "Peptide", "Allele")
 while (TRUE) {
    
    for (i in 1:nrow(data_clean_matched)) {
+      new_CDR <- sample(data_clean_matched$CDR3b, 1)
       pep <- data_clean_matched$Peptide[i]
       allele <- data_clean_matched$Allele[i]
       sample(Peptide, Allele)
@@ -81,6 +82,24 @@ while (FALSE) {
    cdr <- data_clean_matched %>% sample(1)
    if (cdr )
 }
+
+
+cdr3b <- data_clean_matched %>% pull(CDR3b)
+
+for (i in 1:nrow(b)) {
+   b$CDR3b[i] <- sample(cdr3b, 1)
+   while (do.call(paste0, slice(b, i)) %in% do.call(paste0, data_clean_matched)) {
+      b$CDR3b[i] <- sample(cdr3b, 1)
+   }   
+}
+
+
+
+
+
+
+
+
 
 
 
