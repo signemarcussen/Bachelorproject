@@ -1,3 +1,4 @@
+library(tidyverse)
 # Work with subset
 set.seed(1234)
 #data_clean <- data_clean %>% sample_n(50)
@@ -12,21 +13,29 @@ data_binder <- data.frame(CDR3b = LETTERS[1:10],
 
 data_binder
 
+vec <- c("G","A","A")
+vec1 <- c("A","A","A")
+names(vec) <- c("CDR3b", "Peptide", "Allele")
+
+
 non_binder <- c()
 data_binder1 <- data_binder %>% 
    select(-Binding)
+nRow <- nrow(data_binder1)
 
-for (iRow in 1:nrow(data_binder1)) {
+for (i in 1:nRow) {
    
    obs <- c(sample(data_binder$CDR3b,1), 
-            data_binder$Peptide[iRow],
-            data_binder$Allele[iRow])
+            data_binder$Peptide[i],
+            data_binder$Allele[i])
    
-   if (obs[iRow] == data_binder1[iRow,1]) {
-     #If CDR3b seq is the same  
-   } 
-   
-   #non_binder <- data_binder$CDR3b[i]
+   for (j in 1:nRow) {
+     while (obs==) {
+        #While stopper når condition er FALSE
+        
+     }
+      
+   }
    
 }
 

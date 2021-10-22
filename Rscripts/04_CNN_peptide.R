@@ -29,6 +29,9 @@ blosum62 <- blosum62_raw %>%
 
 ## Define training/test set
 set.seed(2005)
+data_A0201 <- data_A0201 %>%
+   sample_n(10000)
+
 data_A0201_Xy <- data_A0201 %>% 
       mutate(Set = sample(c("train", "test"),
                           size = nrow(.),
@@ -45,6 +48,7 @@ X_train <- data_A0201_Xy %>%
    pull(Peptide) %>% 
    pep_encode_Signe(pep = ., matrix = blosum62) %>% 
    array_reshape(., c(nrow(.), 9, 20, 1))
+#skal vi ikke bare bruge den oprindlige pep_encode?
 
 X_test <- data_A0201_Xy %>% 
    filter(Set == "test") %>% 
@@ -69,7 +73,6 @@ y_test <- data_A0201_Xy %>%
 ## Set hyperparameters
 n_epochs <- 5 #300 / 50
 batch_size <- 500
-#batch_size <- 158402 #nrow(yy_train)
 loss_func <- "binary_crossentropy"
 learn_rate <- 0.001
 input_shape <- c(9, 20, 1)
