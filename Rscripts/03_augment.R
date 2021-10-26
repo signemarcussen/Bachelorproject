@@ -130,6 +130,10 @@ data_A0201_complete <- bind_rows(data_A0201,
 data_A0201_complete %>% distinct(Peptide)
 data_A0201_complete %>% distinct(CDR3b)
 
+data_A0201_complete %>%  distinct(., across(- c(Binding,CDR3b_size)))
+#222216-206693
+#[1] 15523 duplicates 
+
 # Write data --------------------------------------------------------------
 write_tsv(x = data_A0201_complete,
           file = "data/03_data_A0201_complete.tsv.gz")
