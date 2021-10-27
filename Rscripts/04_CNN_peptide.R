@@ -70,86 +70,76 @@ y_test <- data_A0201_Xy %>%
 # Model data --------------------------------------------------------------
 
 ## Set hyperparameters
-n_epochs <- 5 #300 / 50
+n_epochs <- 10 #300 / 50
 batch_size <- 128 #128
 loss_func <- "binary_crossentropy"
 learn_rate <- 0.001
-input_shape <- c(9, 20, 1)
+input_shape_pep <- c(9, 20, 1)
+#input_shape_CDR3b <- c()
 
 ## Build model architecture
 cnn_model <- keras_model_sequential() %>% 
    layer_conv_2d(filters = 32,
-                 kernel_size = 3,
+                 kernel_size = c(3,3),
                  activation = 'relu',
                  input_shape = input_shape) %>%
-   layer_max_pooling_2d(pool_size = c(2,2)) %>% 
+   layer_max_pooling_2d(pool_size = c(2, 2)) %>% 
    #layer_dropout(rate = 0.25) %>% 
    layer_flatten() %>% 
    layer_dense(units = 32, activation = "relu") %>% 
    layer_dense(units  = 1, activation   = 'sigmoid')
 
 
-## Model with several kernel_sizes (Not working)
-conv_l1_k1 <- keras_model_sequential() %>% 
+## Build model with functional API: https://keras.rstudio.com/articles/functional_api.html)
+peptide_input <- layer_input(shape = input_shape_pep)
+#CDRb_input <- layer_input(shape = input_shape_pep)
+
+pep_k1 <- peptide_input %>% 
    layer_conv_2d(filters = 16,
                  kernel_size = 1,
                  padding = "same",
                  activation = 'relu',
                  input_shape = input_shape) %>% 
    layer_max_pooling_2d(pool_size = c(2,2))
-conv_l1_k3 <- keras_model_sequential() %>% 
+pep_k3 <- peptide_input %>% 
    layer_conv_2d(filters = 16,
                  kernel_size = 3,
                  padding = "same",
                  activation = 'relu',
-                 input_shape = input_shape) %>%
+                 input_shape = input_shape) %>% 
    layer_max_pooling_2d(pool_size = c(2,2))
-conv_l1_k5 <- keras_model_sequential() %>% 
+pep_k5 <- peptide_input %>% 
    layer_conv_2d(filters = 16,
                  kernel_size = 5,
                  padding = "same",
                  activation = 'relu',
-                 input_shape = input_shape) %>%
+                 input_shape = input_shape) %>% 
    layer_max_pooling_2d(pool_size = c(2,2))
-conv_l1_k7 <- keras_model_sequential() %>% 
+pep_k7 <- peptide_input %>% 
    layer_conv_2d(filters = 16,
                  kernel_size = 7,
                  padding = "same",
                  activation = 'relu',
-                 input_shape = input_shape) %>%
+                 input_shape = input_shape) %>% 
    layer_max_pooling_2d(pool_size = c(2,2))
-conv_l1_k9 <- keras_model_sequential() %>% 
+pep_k9 <- peptide_input %>% 
    layer_conv_2d(filters = 16,
                  kernel_size = 9,
                  padding = "same",
                  activation = 'relu',
-                 input_shape = input_shape) 
+                 input_shape = input_shape) %>% 
+   layer_max_pooling_2d(pool_size = c(2,2))
 
-predictions <- layer_concatenate(inputs = c(conv_l1_k1, 
-                                            conv_l1_k3, 
-                                            conv_l1_k5, 
-                                            conv_l1_k7, 
-                                            conv_l1_k9)) %>% 
-   layer_dense(units = 32, activation = "relu") %>% 
-   layer_dense(units  = 1, activation   = 'sigmoid')
 
-cnn_model <- keras_model(inputs = input_shape,
-                         outputs = predictions)
-## Another try: (Read up on functional API: https://keras.rstudio.com/articles/functional_api.html)
-conv_k1 <- layer_conv_2d(filters = 16,
-                            kernel_size = 1,
-                            padding = "same",
-                            activation = 'relu',
-                            input_shape = input_shape) 
-
-pool_k1 <- layer_max_pooling_2d(object = conv_k1, pool_size = c(2,2))
-
-input <- layer_input(shape = input_shape)
-model_out <- 
+pep_output <- layer_concatenate(inputs = list(pep_k1, 
+                                              pep_k3, 
+                                              pep_k5,
+                                              pep_k7,
+                                              pep_k9))
 
 model <- keras_model(
-   inputs = c(),
-   outputs = c()
+   inputs = input,
+   outputs = output
 )
 
 
