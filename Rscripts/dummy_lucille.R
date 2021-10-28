@@ -11,36 +11,6 @@ data_binder <- data.frame(CDR3b = LETTERS[1:10],
                           Binding = 1) %>% 
    as_tibble() %>% mutate(across(where(is.factor), as.character))
 
-data_binder
-
-vec <- c("G","A","A")
-vec1 <- c("A","A","A")
-names(vec) <- c("CDR3b", "Peptide", "Allele")
-
-
-non_binder <- c()
-data_binder1 <- data_binder %>% 
-   select(-Binding)
-nRow <- nrow(data_binder1)
-
-for (i in 1:nRow) {
-   
-   obs <- c(sample(data_binder$CDR3b,1), 
-            data_binder$Peptide[i],
-            data_binder$Allele[i])
-   
-   for (j in 1:nRow) {
-     while (obs==) {
-        #While stopper når condition er FALSE
-        
-     }
-      
-   }
-   
-}
-
-print(non_binder)
-
 #brug distint across alt andet end binding. c(-binding)
 #distinct(starwars, across(contains("color")))
 
@@ -83,3 +53,13 @@ data_complete_combined <- bind_rows(data_complete,
 # number of duplicates using data_A0201
 #105312*2 - nrow(data_complete_combined)
 #[1] 24725
+
+data <- data_A0201_complete %>% sample_n(10) %>% 
+   filter_at(.vars = vars(CDR3b),
+             .vars_predicate = all_vars(str_detect(.,
+                                                   "^C\\w*F$",
+                                                   negate = FALSE))) %>% 
+   mutate(CDR3b = str_remove(CDR3b, "F$"),
+          CDR3b = str_remove( CDR3b, "^C"))
+## Negate = False, fjerner alle der ikke matcher
+data
