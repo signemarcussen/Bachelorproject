@@ -12,7 +12,7 @@ source("Rscripts/99_project_functions.R")
 
 
 # Load data ---------------------------------------------------------------
-data_A0201 <- read_tsv(file = "data/03_data_complete_A0201.tsv.gz")
+data_A0201 <- read_tsv(file = "data/03_data_A0201_complete.tsv.gz")
 blosum62_raw <- read.table(file = "data/_raw/BLOSUM62.txt", 
                            skip = 6)
 
