@@ -46,16 +46,17 @@ data_A0201_Xy <- data_A0201 %>%
       mutate(Set = sample(c("train", "test"),
                           size = nrow(.),
                           replace = TRUE,
-                          prob = c(0.8, 0.2))) %>% 
+                          prob = c(0.8, 0.2))) 
    # Partition = sample(1:5,
    #                   size = nrow(.),
    #                  replace = TRUE,
    #                 prob = c(0.2, 0.2, 0.2, 0.2, 0.2)))
 
 ## Pad short CDR3b sequences with "X" to same length
+max_CDR3b <- data_A0201_Xy %>% select(CDR3b_size) %>%  max(.)
 data_A0201_Xy <- data_A0201_Xy %>% 
    mutate(CDR3b = str_pad(string = CDR3b, 
-                          width = max(nchar(CDR3b)), 
+                          width = max_CDR3b, 
                           side = "right", 
                           pad = "X"))
 
@@ -95,45 +96,45 @@ n_epochs <- 10 #300 / 50
 batch_size <- 128
 loss_func <- "binary_crossentropy"
 learn_rate <- 0.001
-input_shape_pep <- c(9, 20)
-#input_shape_CDR3b <- c(max_seq, 21, 1)
+input_shape_pep <- c(9, 20, 1)
+input_shape_CDR3b <- c(max_CDR3b, 21, 1)
 
 
 ## Build model with functional API: https://keras.rstudio.com/articles/functional_api.html)
 peptide_input <- layer_input(shape = input_shape_pep)
-#CDR3b_input <- layer_input(shape = input_shape_CDR3b)
+CDR3b_input <- layer_input(shape = input_shape_CDR3b)
 
 pep_k1 <- peptide_input %>% 
-   layer_conv_1d(filters = 16,
-                 kernel_size = 1,
+   layer_conv_2d(filters = 16,
+                 kernel_size = c(1, 20),
                  padding = "same",
                  activation = 'relu',
                  input_shape = input_shape_pep) %>% 
    layer_max_pooling_1d(pool_size = 2)
 pep_k3 <- peptide_input %>% 
    layer_conv_1d(filters = 16,
-                 kernel_size = 3,
+                 kernel_size = c(3, 20),
                  padding = "same",
                  activation = 'relu',
                  input_shape = input_shape_pep) %>% 
    layer_max_pooling_1d(pool_size = 2)
 pep_k5 <- peptide_input %>% 
    layer_conv_1d(filters = 16,
-                 kernel_size = 5,
+                 kernel_size = c(5, 20),
                  padding = "same",
                  activation = 'relu',
                  input_shape = input_shape_pep) %>% 
    layer_max_pooling_1d(pool_size = 2)
 pep_k7 <- peptide_input %>% 
    layer_conv_1d(filters = 16,
-                 kernel_size = 7,
+                 kernel_size = c(7, 20),
                  padding = "same",
                  activation = 'relu',
                  input_shape = input_shape_pep) %>% 
    layer_max_pooling_1d(pool_size = 2)
 pep_k9 <- peptide_input %>% 
    layer_conv_1d(filters = 16,
-                 kernel_size = 9,
+                 kernel_size = c(9, 20),
                  padding = "same",
                  activation = 'relu',
                  input_shape = input_shape_pep) %>% 
