@@ -69,37 +69,53 @@ data_clean_matched <- data_clean %>%
              y = pMHC_clean, 
              by = c("Peptide", "Allele")) %>% 
    filter(EL_Rank <= 2) %>% 
-   distinct() %>% 
-   select(-Experiment, -EL_Rank)
-
-# Remove duplicates?
-data_clean_matched <- data_clean_matched %>% 
+   select(-Experiment, -EL_Rank) %>% 
    distinct()
+# - Observations: 289523
+
 
 ## Subset only HLA-A*02:01
 data_A0201 <- data_clean_matched %>% 
    filter(Allele == "A*02:01") %>% 
    select(-Allele)
+# - Observations: 105312
+
 
 ## Create non-binders by mismatching CDR3b with peptide and corresponding allele
-all_CDR3b <- data_clean_matched %>% pull(CDR3b)
+all_CDR3b <- data_clean_matched %>% pull(CDR3b) %>% unique()
 
 set.seed(100)
 non_binders <- data_A0201 %>%
    mutate(CDR3b = sample(all_CDR3b, 
-                         size = nrow(data_A0201)))
+                         size = nrow(data_A0201),
+                         replace = TRUE))
 
-duplicates <- inner_join(data_A0201,
-                         non_binders,
-                         by = c("CDR3b", "Peptide"))
+duplicates_intern <- non_binders %>% 
+   group_by(CDR3b, Peptide) %>% 
+   filter(n() > 1) %>% 
+   slice(-1) %>% 
+   ungroup()
+
+duplicates_extern <- non_binders %>% 
+   distinct() %>% 
+   inner_join(x = .,
+              y = data_A0201,
+              by = c("CDR3b", "Peptide"))
+
+duplicates <- bind_rows(duplicates_intern,
+                        duplicates_extern)
+# - Duplicates: 12738
+
 # Keep only correct mismatches
-non_binders <- anti_join(non_binders,
-                         data_A0201)
+non_binders_unique <- non_binders %>% 
+   distinct() %>% 
+   anti_join(x = .,
+             y = data_A0201)
 
 # Make new and unique combinations of all duplicates
 all_unique <- bind_rows(data_A0201,
-                        non_binders)
-set.seed(100)
+                        non_binders_unique)
+set.seed(200)
 for (i in 1:nrow(duplicates)) {
    
    duplicates$CDR3b[i] <- sample(all_CDR3b, 1)
@@ -109,6 +125,9 @@ for (i in 1:nrow(duplicates)) {
       duplicates$CDR3b[i] <- sample(all_CDR3b, 1)
       
    } 
+   
+   all_unique <- bind_rows(all_unique,
+                           slice(duplicates, i))
    
    print(paste0(i, "/", nrow(duplicates)))
    
