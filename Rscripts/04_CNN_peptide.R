@@ -40,7 +40,7 @@ blosum62 <- blosum62_X %>%
 ## Define training/test set
 set.seed(2005)
 data_A0201 <- data_A0201 %>% # SUBSET
-   sample_n(10000)
+   sample_n(80000)
 
 data_A0201_Xy <- data_A0201 %>% 
       mutate(Set = sample(c("train", "test"),
@@ -64,20 +64,32 @@ data_A0201_Xy <- data_A0201_Xy %>%
 data_A0201_Xy %>% 
       count(Binding, Set)
 
-## Encode peptides and define training/test matrices
-X_train <- data_A0201_Xy %>% 
+## Encode amino acids and define training/test matrices
+X_train_pep <- data_A0201_Xy %>% 
    filter(Set == "train") %>% 
    pull(Peptide) %>% 
    blosum_encoding(peptide = ., 
                    blosum_matrix = blosum62) %>% 
    array_reshape(., c(nrow(.), 9, 20, 1))
-
-X_test <- data_A0201_Xy %>% 
+X_test_pep <- data_A0201_Xy %>% 
    filter(Set == "test") %>% 
    pull(Peptide) %>% 
    blosum_encoding(peptide = ., 
                    blosum_matrix = blosum62) %>% 
    array_reshape(., c(nrow(.), 9, 20, 1))
+
+X_train_CDR3b <- data_A0201_Xy %>% 
+   filter(Set == "train") %>% 
+   pull(CDR3b) %>% 
+   blosum_encoding(peptide = .,
+                   blosum_matrix = blosum62_X) %>% 
+   array_reshape(., c(nrow(.), max_CDR3b, 21, 1))
+X_test_CDR3b <- data_A0201_Xy %>% 
+   filter(Set == "test") %>% 
+   pull(CDR3b)%>% 
+   blosum_encoding(peptide = .,
+                   blosum62_X) %>% 
+   array_reshape(., c(nrow(.), max_CDR3b, 21, 1))
 
 y_train <- data_A0201_Xy %>% 
    filter(Set == "train") %>% 
@@ -86,7 +98,6 @@ y_train <- data_A0201_Xy %>%
 y_test <- data_A0201_Xy %>% 
    filter(Set == "test") %>% 
    pull(Binding)
-
 
 
 # Model data --------------------------------------------------------------
@@ -99,10 +110,10 @@ learn_rate <- 0.001
 input_shape_pep <- c(9, 20, 1)
 input_shape_CDR3b <- c(max_CDR3b, 21, 1)
 
+# Functional API: https://keras.rstudio.com/articles/functional_api.html)
 
-## Build model with functional API: https://keras.rstudio.com/articles/functional_api.html)
+## Build peptide model
 peptide_input <- layer_input(shape = input_shape_pep)
-CDR3b_input <- layer_input(shape = input_shape_CDR3b)
 
 pep_k1 <- peptide_input %>% 
    layer_conv_2d(filters = 16,
@@ -110,61 +121,105 @@ pep_k1 <- peptide_input %>%
                  padding = "same",
                  activation = 'relu',
                  input_shape = input_shape_pep) %>% 
-   layer_max_pooling_1d(pool_size = 2)
+   layer_max_pooling_2d(pool_size = 2)
 pep_k3 <- peptide_input %>% 
-   layer_conv_1d(filters = 16,
+   layer_conv_2d(filters = 16,
                  kernel_size = c(3, 20),
                  padding = "same",
                  activation = 'relu',
                  input_shape = input_shape_pep) %>% 
-   layer_max_pooling_1d(pool_size = 2)
+   layer_max_pooling_2d(pool_size = c(2, 2))
 pep_k5 <- peptide_input %>% 
-   layer_conv_1d(filters = 16,
+   layer_conv_2d(filters = 16,
                  kernel_size = c(5, 20),
                  padding = "same",
                  activation = 'relu',
                  input_shape = input_shape_pep) %>% 
-   layer_max_pooling_1d(pool_size = 2)
+   layer_max_pooling_2d(pool_size = c(2, 2))
 pep_k7 <- peptide_input %>% 
-   layer_conv_1d(filters = 16,
+   layer_conv_2d(filters = 16,
                  kernel_size = c(7, 20),
                  padding = "same",
                  activation = 'relu',
                  input_shape = input_shape_pep) %>% 
-   layer_max_pooling_1d(pool_size = 2)
+   layer_max_pooling_2d(pool_size = c(2, 2))
 pep_k9 <- peptide_input %>% 
-   layer_conv_1d(filters = 16,
+   layer_conv_2d(filters = 16,
                  kernel_size = c(9, 20),
                  padding = "same",
                  activation = 'relu',
                  input_shape = input_shape_pep) %>% 
-   layer_max_pooling_1d(pool_size = 2)
+   layer_max_pooling_2d(pool_size = c(2, 2))
 
 
 pep_output <- layer_concatenate(inputs = c(pep_k1, 
                                            pep_k3, 
                                            pep_k5,
                                            pep_k7,
-                                           pep_k9),
-                                axis = 1)
+                                           pep_k9))
+
+
+## Build CDR3b model
+CDR3b_input <- layer_input(shape = input_shape_CDR3b)
 
 CDR3b_k1 <- CDR3b_input %>% 
-   layer_conv_1d(filters = 16,
-                 kernel_size = 1,
+   layer_conv_2d(filters = 16,
+                 kernel_size = c(1, 21),
                  padding = "same",
                  activation = 'relu',
-                 input_shape = input_shape_pep) %>% 
-   layer_max_pooling_1d(pool_size = 2)
+                 input_shape = input_shape_CDR3b) %>% 
+   layer_max_pooling_2d(pool_size = c(2, 2))
+CDR3b_k3 <- CDR3b_input %>% 
+   layer_conv_2d(filters = 16,
+                 kernel_size = c(3, 21),
+                 padding = "same",
+                 activation = 'relu',
+                 input_shape = input_shape_CDR3b) %>% 
+   layer_max_pooling_2d(pool_size = c(2, 2))
+CDR3b_k5 <- CDR3b_input %>% 
+   layer_conv_2d(filters = 16,
+                 kernel_size = c(5, 21),
+                 padding = "same",
+                 activation = 'relu',
+                 input_shape = input_shape_CDR3b) %>% 
+   layer_max_pooling_2d(pool_size = c(2, 2))
+CDR3b_k7 <- CDR3b_input %>% 
+   layer_conv_2d(filters = 16,
+                 kernel_size = c(7, 21),
+                 padding = "same",
+                 activation = 'relu',
+                 input_shape = input_shape_CDR3b) %>% 
+   layer_max_pooling_2d(pool_size = c(2, 2))
+CDR3b_k9 <- CDR3b_input %>% 
+   layer_conv_2d(filters = 16,
+                 kernel_size = c(9, 21),
+                 padding = "same",
+                 activation = 'relu',
+                 input_shape = input_shape_CDR3b) %>% 
+   layer_max_pooling_2d(pool_size = c(2, 2))
 
+CDR3b_output <- layer_concatenate(inputs = c(CDR3b_k1,
+                                             CDR3b_k3,
+                                             CDR3b_k5,
+                                             CDR3b_k7,
+                                             CDR3b_k9))
 
+## Concatenate models and keep building
+concatenated_model <- layer_concatenate(list(pep_output,
+                                             CDR3b_output),
+                                        axis = 1) %>% 
+   layer_flatten() %>% 
+   layer_dense(units = 100,
+               activation = "relu")
 
+output_model <- concatenated_model %>% 
+   layer_dense(units = 1,
+               activation = "sigmoid")
 
-model <- keras_model(
-   inputs = input,
-   outputs = output
+cnn_model <- keras_model(
+   inputs = list(peptide_input, CDR3b_input),
+   outputs = output_model
 )
-
-
 
 ## Compile model
 cnn_model %>% 
@@ -178,25 +233,21 @@ cnn_model %>% summary()
 
 ## Train model
 cnn_history <- cnn_model %>% 
-   fit(x = X_train,
+   fit(x = list(X_train_pep, X_train_CDR3b),
        y = y_train,
        epochs = n_epochs,
        batch_size = batch_size,
        validation_split = 0.2)
 
 
-# ## Evaluate model
-# performance_test <- model %>% 
-#    evaluate(X_test, y_test)
-# accuracy_test <- performance_test %>% 
-#    pluck("accuracy") %>% 
-#    round(3) * 100
-# 
-# performance_train <- model %>% 
-#    evaluate(X_train, y_train)
-# accuracy_train <- performance_train %>% 
-#    pluck("accuracy") %>% 
-#    round(3) * 100
+## Evaluate model
+performance_test <- cnn_model %>%
+   evaluate(list(X_test_pep, X_test_CDR3b), 
+            y_test)
+accuracy_test <- performance_test %>%
+   pluck("accuracy") %>%
+   round(3) * 100
+
 
 
 # Visualise data ----------------------------------------------------------
