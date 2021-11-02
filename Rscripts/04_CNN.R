@@ -238,7 +238,7 @@ cnn_history <- cnn_model %>%
        y = y_train,
        epochs = n_epochs,
        batch_size = batch_size,
-       validation_split = 0.2,
+       validation_split = 0.25,
        callbacks = callback_early_stopping(monitor = "val_loss",
                                            patience = 1))
 
