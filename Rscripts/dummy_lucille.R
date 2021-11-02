@@ -53,13 +53,3 @@ data_complete_combined <- bind_rows(data_complete,
 # number of duplicates using data_A0201
 #105312*2 - nrow(data_complete_combined)
 #[1] 24725
-
-data <- data_A0201_complete %>% sample_n(10) %>% 
-   filter_at(.vars = vars(CDR3b),
-             .vars_predicate = all_vars(str_detect(.,
-                                                   "^C\\w*F$",
-                                                   negate = FALSE))) %>% 
-   mutate(CDR3b = str_remove(CDR3b, "F$"),
-          CDR3b = str_remove( CDR3b, "^C"))
-## Negate = False, fjerner alle der ikke matcher
-data
