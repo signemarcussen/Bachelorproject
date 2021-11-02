@@ -42,15 +42,12 @@ set.seed(2005)
 data_A0201 <- data_A0201 %>% # SUBSET
    sample_n(80000)
 
-data_A0201_Xy <- data_A0201 %>% 
+data_A0201_Xy <- data_A0201 %>%
       mutate(Set = sample(c("train", "test"),
                           size = nrow(.),
                           replace = TRUE,
-                          prob = c(0.8, 0.2))) 
-   # Partition = sample(1:5,
-   #                   size = nrow(.),
-   #                  replace = TRUE,
-   #                 prob = c(0.2, 0.2, 0.2, 0.2, 0.2)))
+                          prob = c(0.8, 0.2)))
+    
 
 ## Pad short CDR3b sequences with "X" to same length
 max_CDR3b <- data_A0201_Xy %>% 
@@ -208,7 +205,7 @@ CDR3b_output <- layer_concatenate(inputs = c(CDR3b_k1,
                                              CDR3b_k5,
                                              CDR3b_k7,
                                              CDR3b_k9))
-stop()
+
 ## Concatenate models and keep building
 concatenated_model <- layer_concatenate(list(pep_output,
                                              CDR3b_output),
@@ -223,8 +220,7 @@ output_model <- concatenated_model %>%
 
 cnn_model <- keras_model(
    inputs = list(peptide_input, CDR3b_input),
-   outputs = output_model
-)
+   outputs = output_model)
 
 ## Compile model
 cnn_model %>% 
@@ -242,7 +238,9 @@ cnn_history <- cnn_model %>%
        y = y_train,
        epochs = n_epochs,
        batch_size = batch_size,
-       validation_split = 0.2)
+       validation_split = 0.2,
+       callbacks = callback_early_stopping(monitor = "val_loss",
+                                           patience = 1))
 
 
 ## Evaluate model
