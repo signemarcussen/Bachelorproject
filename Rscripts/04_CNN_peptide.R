@@ -53,7 +53,10 @@ data_A0201_Xy <- data_A0201 %>%
    #                 prob = c(0.2, 0.2, 0.2, 0.2, 0.2)))
 
 ## Pad short CDR3b sequences with "X" to same length
-max_CDR3b <- data_A0201_Xy %>% select(CDR3b_size) %>%  max(.)
+max_CDR3b <- data_A0201_Xy %>% 
+   select(CDR3b_size) %>% 
+   max(.)
+
 data_A0201_Xy <- data_A0201_Xy %>% 
    mutate(CDR3b = str_pad(string = CDR3b, 
                           width = max_CDR3b, 
@@ -71,6 +74,7 @@ X_train_pep <- data_A0201_Xy %>%
    blosum_encoding(peptide = ., 
                    blosum_matrix = blosum62) %>% 
    array_reshape(., c(nrow(.), 9, 20, 1))
+
 X_test_pep <- data_A0201_Xy %>% 
    filter(Set == "test") %>% 
    pull(Peptide) %>% 
@@ -84,6 +88,7 @@ X_train_CDR3b <- data_A0201_Xy %>%
    blosum_encoding(peptide = .,
                    blosum_matrix = blosum62_X) %>% 
    array_reshape(., c(nrow(.), max_CDR3b, 21, 1))
+
 X_test_CDR3b <- data_A0201_Xy %>% 
    filter(Set == "test") %>% 
    pull(CDR3b)%>% 
@@ -203,7 +208,7 @@ CDR3b_output <- layer_concatenate(inputs = c(CDR3b_k1,
                                              CDR3b_k5,
                                              CDR3b_k7,
                                              CDR3b_k9))
-
+stop()
 ## Concatenate models and keep building
 concatenated_model <- layer_concatenate(list(pep_output,
                                              CDR3b_output),
