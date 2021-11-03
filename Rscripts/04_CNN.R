@@ -250,6 +250,14 @@ performance_test <- cnn_model %>%
 accuracy_test <- performance_test %>%
    pluck("accuracy") %>%
    round(3) * 100
+# Try to find predictions of the model 
+
+#predict_classes(cnn_model, list(X_train_pep,X_train_CDR3b))
+
+prediction <- cnn_model %>% predict(list(X_train_pep,X_train_CDR3b))
+#Min=0.067, max=0.65, mean=0.27 
+# sum(prediction > 0.5) = 389
+prediction %>%  '>'(0.5) %>%  k_cast(., "int32")
 
 
 
