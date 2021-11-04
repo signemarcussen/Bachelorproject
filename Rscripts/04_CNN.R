@@ -5,8 +5,8 @@ rm(list = ls())
 # Load libraries ----------------------------------------------------------
 library("keras")
 suppressWarnings(library("tidyverse"))
-#library("tensorflow")
-#library("reticulate")
+library("tensorflow")
+library("reticulate")
 suppressWarnings(library(PepTools))
 
 
@@ -40,7 +40,7 @@ blosum62 <- blosum62_X %>%
 ## Define training/test set
 set.seed(2005)
 data_A0201 <- data_A0201 %>% # SUBSET
-   sample_n(80000)
+   sample_n(20000)
 
 data_A0201_Xy <- data_A0201 %>%
       mutate(Set = sample(c("train", "test"),
