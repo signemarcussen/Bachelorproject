@@ -250,14 +250,20 @@ performance_test <- cnn_model %>%
 accuracy_test <- performance_test %>%
    pluck("accuracy") %>%
    round(3) * 100
-# Try to find predictions of the model 
 
-#predict_classes(cnn_model, list(X_train_pep,X_train_CDR3b))
+## Predictions of the model 
+prediction <- cnn_model %>% predict(list(X_test_pep,X_test_CDR3b))
 
-prediction <- cnn_model %>% predict(list(X_train_pep,X_train_CDR3b))
-#Min=0.067, max=0.65, mean=0.27 
-# sum(prediction > 0.5) = 389
-prediction %>%  '>'(0.5) %>%  k_cast(., "int32")
+## ROC and AUC 
+roc_obj <- roc(response = y_test, predictor = prediction[,1], plot = TRUE)
+
+auc_obj <- round(auc(y_test, prediction[,1]),4)
+
+#create ROC plot
+ggroc(roc_obj, colour = 'steelblue', size = 2) +
+   ggtitle(paste0('ROC Curve ', '(AUC = ', auc_obj, ')'))
+# Get the class prediction w. a threshold of 0.5
+# y_pred <- prediction %>%  as.numeric(prediction[,1] >= 0.5)
 
 
 
