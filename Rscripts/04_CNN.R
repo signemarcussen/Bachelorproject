@@ -40,7 +40,7 @@ blosum62 <- blosum62_X %>%
 ## Define training/test set
 set.seed(2005)
 data_A0201 <- data_A0201 %>% # SUBSET
-   sample_n(20000)
+   sample_n(2000)
 
 data_A0201_Xy <- data_A0201 %>%
       mutate(Set = sample(c("train", "test"),

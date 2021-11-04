@@ -53,3 +53,21 @@ data_complete_combined <- bind_rows(data_complete,
 # number of duplicates using data_A0201
 #105312*2 - nrow(data_complete_combined)
 #[1] 24725
+
+
+#######################################
+##k-fold 
+data_A0201
+
+createDataPartition(data_A0201, times = 5)
+
+
+
+
+
+
+
+
+
+
+
