@@ -239,8 +239,8 @@ cnn_history <- cnn_model %>%
        epochs = n_epochs,
        batch_size = batch_size,
        validation_split = 0.25,
-       callbacks = callback_early_stopping(monitor = "val_loss",
-                                           patience = 1))
+       callbacks = callback_early_stopping(monitor = "accuracy",
+                                           patience = 3))
 
 
 ## Evaluate model
