@@ -7,8 +7,8 @@ library("keras")
 suppressWarnings(library("tidyverse"))
 library("tensorflow")
 library("reticulate")
-suppressWarnings(library(PepTools))
-
+suppressWarnings(library("PepTools"))
+library("pROC")
 
 # Define functions --------------------------------------------------------
 source("Rscripts/99_project_functions.R")
@@ -239,11 +239,11 @@ cnn_history <- cnn_model %>%
        epochs = n_epochs,
        batch_size = batch_size,
        validation_split = 0.25,
-       callbacks = callback_early_stopping(monitor = "accuracy",
+       callbacks = callback_early_stopping(monitor = "val_accuracy",
                                            patience = 3))
 
 
-## Evaluate model
+# Model evaluation ---------------------------------------------------------
 performance_test <- cnn_model %>%
    evaluate(list(X_test_pep, X_test_CDR3b), 
             y_test)
@@ -265,6 +265,17 @@ ggroc(roc_obj, colour = 'steelblue', size = 2) +
 # Get the class prediction w. a threshold of 0.5
 # y_pred <- prediction %>%  as.numeric(prediction[,1] >= 0.5)
 
+## Sensitivity / specificity 
+# Getting the coordinates from the ROC-curve. 
+mycoords <- coords(roc_obj, "all")
+best_coords <- coords(roc_obj, "best", best.method="youden") 
+ggplot(mycoords) +
+   geom_line(mapping = aes(x=specificity, y=threshold), color = 'red')+
+   geom_line(mapping = aes(x=sensitivity, y=threshold),color = 'blue')+
+   geom_hline(yintercept = best_coords$specificity, linetype='dotted', color = 'red') +
+   geom_hline(yintercept = best_coords$sensitivity, linetype='dotted', color = 'blue')+
+   geom_vline(xintercept = best_coords$threshold, linetype='dotted', color = 'grey')+
+   labs(x = "Cutoff", y = "Threshold")
 
 
 # Visualise data ----------------------------------------------------------
