@@ -106,6 +106,13 @@ cnn_model <- keras_model_sequential() %>%
    layer_dense(units  = 1, activation   = 'sigmoid')
 
 
+# ## View class distribution
+# data_A0201 %>% 
+#       ggplot(mapping = aes(Set,
+#                            fill = Binding)) +
+#       geom_bar(position = "dodge")
+
+
 
 
 
