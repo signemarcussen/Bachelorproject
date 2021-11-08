@@ -3,11 +3,11 @@ rm(list = ls())
 
 
 # Load libraries ----------------------------------------------------------
-library("keras")
 suppressWarnings(library("tidyverse"))
-library("tensorflow")
-library("reticulate")
+library("keras")
 suppressWarnings(library("PepTools"))
+#library("tensorflow")
+#library("reticulate")
 library("pROC")
 
 # Define functions --------------------------------------------------------
