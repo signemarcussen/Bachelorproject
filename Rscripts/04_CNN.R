@@ -3,12 +3,11 @@ rm(list = ls())
 
 
 # Load libraries ----------------------------------------------------------
-library("keras")
 suppressWarnings(library("tidyverse"))
-library("tensorflow")
-library("reticulate")
+library("keras")
 suppressWarnings(library("PepTools"))
-library("pROC")
+library("tidymodels")
+
 
 # Define functions --------------------------------------------------------
 source("Rscripts/99_project_functions.R")
@@ -37,32 +36,57 @@ blosum62 <- blosum62_X %>%
    as.matrix()
 
 
-## Define training/test set
+## Subset
 set.seed(2005)
 data_A0201 <- data_A0201 %>% # SUBSET
-   sample_n(2000)
+      sample_n(2000)
 
-data_A0201_Xy <- data_A0201 %>%
+
+## Pad short CDR3b sequences with "X" to same length
+max_CDR3b <- data_A0201 %>% 
+      select(CDR3b_size) %>% 
+      max(.)
+
+data_A0201 <- data_A0201 %>% 
+      mutate(CDR3b = str_pad(string = CDR3b, 
+                             width = max_CDR3b, 
+                             side = "right", 
+                             pad = "X"))
+
+## Define independent test set, and the rest for 5-fold CV
+data_A0201 <- data_A0201 %>%
       mutate(Set = sample(c("train", "test"),
                           size = nrow(.),
                           replace = TRUE,
                           prob = c(0.8, 0.2)))
-    
+data_A0201_test <- data_A0201 %>% 
+      filter(Set == "test")
+data_A0201 <- data_A0201 %>% 
+      filter(Set == "train")
 
-## Pad short CDR3b sequences with "X" to same length
-max_CDR3b <- data_A0201_Xy %>% 
-   select(CDR3b_size) %>% 
-   max(.)
+# View binder distribution
+data_A0201_test %>% count(Binding)
+data_A0201 %>% count(Binding)
 
-data_A0201_Xy <- data_A0201_Xy %>% 
-   mutate(CDR3b = str_pad(string = CDR3b, 
-                          width = max_CDR3b, 
-                          side = "right", 
-                          pad = "X"))
 
-## View binder and set distribution
-data_A0201_Xy %>% 
-      count(Binding, Set)
+## 5-fold nested cross-validation
+partitions <- data_A0201 %>% 
+      nested_cv(outside = vfold_cv(v = 5), 
+                inside = vfold_cv(v = 4))
+
+## How to extract:
+# First outer folds:
+as.data.frame(partitions$splits[[1]])
+# First inner fold in first outer fold:
+as.data.frame(partitions$inner_resamples[[1]]$splits[[1]])
+# Partition in train and test:
+as.data.frame(partitions$inner_resamples[[1]]$splits[[1]],
+              data = "assessment") #test
+as.data.frame(partitions$inner_resamples[[1]]$splits[[1]],
+              data = "analysis") #train
+
+
+
 
 ## Encode amino acids and define training/test matrices
 X_train_pep <- data_A0201_Xy %>% 
@@ -100,7 +124,6 @@ y_train <- data_A0201_Xy %>%
 y_test <- data_A0201_Xy %>% 
    filter(Set == "test") %>% 
    pull(Binding)
-
 
 # Model data --------------------------------------------------------------
 
