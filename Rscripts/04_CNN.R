@@ -312,6 +312,21 @@ for (outer_i in outer_folds) {
             meta_data[[mdl_i]]$model_file <- model_file
             meta_data[[mdl_i]]$history <- history
             
+            # Save model
+            cnn_model %>% save_model_hdf5(filepath = model_file)
+            
+            # Make predictions on test data
+            prediction <- cnn_model %>% 
+                  predict(list(X_test_pep, 
+                               X_test_CDR3b))
+            meta_data[[mdl_i]]$predictions_test <- prediction
+            
+            # Performance on test data
+            performance <- cnn_model %>%
+                  evaluate(list(X_test_pep, X_test_CDR3b),
+                           y_test)
+            meta_data[[mdl_i]]$performance_test <- performance
+            
       }
       
 }
@@ -319,12 +334,6 @@ for (outer_i in outer_folds) {
 
 
 # Model evaluation ---------------------------------------------------------
-# performance_test <- cnn_model %>%
-#    evaluate(list(X_test_pep, X_test_CDR3b), 
-#             y_test)
-# accuracy_test <- performance_test %>%
-#    pluck("accuracy") %>%
-#    round(3) * 100
 
 
 # Visualise data ----------------------------------------------------------
