@@ -5,9 +5,9 @@ set.seed(1234)
 
 ### Create non-binders by mismatching ### 
 
-data_binder <- data.frame(CDR3b = LETTERS[1:10], 
-                          Peptide = LETTERS[1:10],
-                          Allele = LETTERS[1:10],
+data_binder <- data.frame(CDR3b = c(LETTERS[1:10],"A"), 
+                          Peptide = c(LETTERS[1:10],"A"),
+                          Allele = c(LETTERS[1:10],"A"),
                           Binding = 1) %>% 
    as_tibble() %>% mutate(across(where(is.factor), as.character))
 
@@ -56,12 +56,27 @@ data_complete_combined <- bind_rows(data_complete,
 
 
 #######################################
-##k-fold 
-data_A0201
+### Categorical data to be converted to numeric data
+colors = c("red", "green", "yellow", "red", "blue")
 
-createDataPartition(data_A0201, times = 5)
+### Universal list of colors
+total_colors = c("red", "green", "blue", "black", "yellow")
 
+### map each color to an integer
+mapping = c()
+for (x in 1:(length(total_colors))) {
+   mapping[total_colors[x]] = x
+}
 
+# integer representation
+
+for (x in 1:(length(colors))) {
+   colors[x] = mapping[colors[x]] = x
+}
+
+one_hot_encode = to_categorical(colors)
+
+print(one_hot_encode)
 
 
 
