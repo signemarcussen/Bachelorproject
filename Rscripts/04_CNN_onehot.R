@@ -35,10 +35,9 @@ dcast(data = data, Outcome ~ Variable, length)
 
 
 dt <- data.frame(
-      ID=1:5, 
-      Color=factor(c("green", "red", "red", "blue", "green"), levels=c("blue", "green", "red", "purple")),
-      Shape=factor(c("square", "triangle", "square", "triangle", "cirlce"))
-)
+      ID=c(1,1:5), 
+      Color=c("green","green", "red", "red", "blue", "green"),
+      Shape=as.character(c("square","square", "triangle", "square", "triangle", "cirlce")))
 
 dt
 
