@@ -47,10 +47,9 @@ one_hot_encoding <- function(peptide, amino) {
    dimnames(enc) = c(strsplit(amino, ""),
                      strsplit(amino, ""))
    
-   
    # Encode the sequence 
    x_enc = enc[unlist(strsplit(peptide, "")),]
-   #print(x_enc)
+   
    # Defining output tensor as a 3d array
    n_peps = length(peptide)
    l_peps = nchar(peptide[1])
