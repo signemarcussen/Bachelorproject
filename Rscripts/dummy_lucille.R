@@ -81,6 +81,26 @@ print(one_hot_encode)
 
 
 
+###################
+amino_acids <- "LITSFANMPGKQYVHWDERC"
+
+# Define encoding matrix
+m = nchar(aminoacid)
+n = nchar(aminoacid)
+enc = diag(1, m, n)
+
+dimnames(enc) = c(strsplit(amino_acids, ""),
+                  strsplit(amino_acids, ""))
+
+# Encode
+x_enc = enc[unlist(strsplit("SCC", "")),]
+x_enc
+
+
+
+
+
+
 
 
 
