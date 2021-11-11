@@ -39,7 +39,7 @@ blosum62 <- blosum62_X %>%
 ## Subset
 set.seed(2005)
 data_A0201 <- data_A0201 %>% # SUBSET
-      sample_n(2000)
+      sample_n(100)
 
 
 ## Pad short CDR3b sequences with "X" to same length
@@ -327,9 +327,26 @@ for (outer_i in outer_folds) {
                            y_test)
             meta_data[[mdl_i]]$performance_test <- performance
             
+            # Add predictions to our data set
+            pred_mdl <- str_c("pred_", mdl_i)
+            test_partition <- test_partition %>%
+                  mutate(!!pred_mdl := as.numeric(
+                        meta_data[[mdl_i]]$predictions_test)
+                        )
+            
+            data_A0201 <- data_A0201 %>% 
+                  left_join(x = .,
+                            y = test_partition,
+                            by = c("CDR3b", "Peptide", "Binding", "CDR3b_size"))
+            
       }
       
 }
+
+# Calculate mean predictions
+data_A0201 <- data_A0201 %>% 
+      mutate(pred_mdl_mean = select(., contains("pred_")) %>% 
+                   rowMeans(na.rm = TRUE))
 
 
 
