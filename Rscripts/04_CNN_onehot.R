@@ -32,24 +32,32 @@ one_hot_encoding <- function(sequence) {
    n = nchar(amino_acids)
    enc = diag(1, m, n)
    
+   #enc1 = array(diag(1, m, n), dim = c(m,n))
    dimnames(enc) = c(strsplit(amino_acids, ""),
                      strsplit(amino_acids, ""))
    
    # Encode the sequence 
    x_enc = enc[unlist(strsplit(sequence, "")),]
-   
+   # x_enc = array(x_enc) %>% 
+   #    array_reshape(., c(9, 20,1))
    return(x_enc)
    
 }
 
 encode <- data_A0201 %>% 
    pull(Peptide) %>% 
-   one_hot_encoding(.) %>% 
-   as.array(.)
+   one_hot_encoding(.)
 encode
+
+bl_encode <- data_A0201 %>% pull(Peptide) %>% 
+   blosum_encoding(peptide = ., 
+                   blosum_matrix = blosum62) %>% 
+   array_reshape(., c(nrow(.), 9, 20, 1))
 
 %>% 
    array_reshape(., c(nrow(.), 9, 20, 1))
+#nrow = antal peptider. ?
+
 # Model data --------------------------------------------------------------
 
 # Write data --------------------------------------------------------------
