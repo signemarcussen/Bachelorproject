@@ -25,7 +25,51 @@ blosum_encoding <- function(peptide, blosum_matrix) {
    for (i in 1:n_peps) {
       pep_i_residues = p_mat[i,]
       pep_img = blosum_matrix[pep_i_residues,]
+      print(pep_img)
       o_tensor[i,,]  = pep_img
    }
    return(o_tensor)
 }
+
+#######################################################################
+## Make numerical representation of peptides/proteins using          ##
+## One-hot encoding.                                                 ##
+#######################################################################
+
+
+one_hot_encoding <- function(peptide, amino) {
+   
+   # Define encoding matrix
+   m = nchar(amino)
+   n = nchar(amino)
+   enc = diag(1, m, n)
+
+   dimnames(enc) = c(strsplit(amino, ""),
+                     strsplit(amino, ""))
+   
+   # Encode the sequence 
+   x_enc = enc[unlist(strsplit(peptide, "")),]
+   
+   # Defining output tensor as a 3d array
+   n_peps = length(peptide)
+   l_peps = nchar(peptide[1])
+   l_enc  = nchar(amino)
+   
+   o_tensor = x_enc %>% 
+      array(., dim = c(n_peps*l_peps, l_enc))
+   
+   return(o_tensor)
+   
+}
+
+
+
+
+
+
+
+
+
+
+
+
