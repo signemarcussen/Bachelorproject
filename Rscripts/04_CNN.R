@@ -39,7 +39,7 @@ blosum62 <- blosum62_X %>%
 ## Subset
 set.seed(2005)
 data_A0201 <- data_A0201 %>% # SUBSET
-      sample_n(3000)
+      sample_n(1000) #1000, 7-8min
 
 
 ## Pad short CDR3b sequences with "X" to same length
