@@ -39,7 +39,7 @@ blosum62 <- blosum62_X %>%
 ## Subset
 set.seed(2005)
 data_A0201 <- data_A0201 %>% # SUBSET
-      sample_n(100)
+      sample_n(3000)
 
 
 ## Pad short CDR3b sequences with "X" to same length
@@ -76,18 +76,6 @@ partitions <- data_A0201 %>%
       nested_cv(outside = vfold_cv(v = 5), 
                 inside = vfold_cv(v = 4))
 
-# ## How to extract:
-# # First outer folds:
-# as.data.frame(partitions$splits[[1]])
-# # First inner fold in first outer fold:
-# as.data.frame(partitions$inner_resamples[[1]]$splits[[1]])
-# # Partition in train and test:
-# as.data.frame(partitions$inner_resamples[[1]]$splits[[1]],
-#               data = "assessment") #test
-# as.data.frame(partitions$inner_resamples[[1]]$splits[[1]],
-#               data = "analysis") #train
-
-
 
 # Build model architecture ------------------------------------------------
 
@@ -107,6 +95,8 @@ inner_folds <- 1:4
 i <- 1
 for (outer_i in outer_folds) {
       for (inner_j in inner_folds) {
+            
+            print(paste0("Training model ", i, ".."))
             
             # Set model architecture ------------------------------
             
@@ -352,8 +342,6 @@ data_A0201 <- data_A0201 %>%
       mutate(pred_mdl_mean = select(., contains("pred_")) %>% 
                    rowMeans(na.rm = TRUE))
 
-
-
 # Model evaluation ---------------------------------------------------------
 
 ## Define X and y final test data and encode amino acids
@@ -371,37 +359,32 @@ X_test_final_CDR3b <- data_A0201_test %>%
 
 y_test_final <- data_A0201_test %>% 
       pull(Binding)
-      
 
-model_files <- list.files(path = "models")
-all_models <- lapply(model_files, function(mdl_file) {
-      mdl_file <- str_c("models/", mdl_file)
-      load_model_hdf5(mdl_file)
-})
 
-a <- data_A0201_test
 ## Evaluate 20 models on test data never seen before
-for (mdl_i in 1:20) {
+data_A0201_test_preds <- data_A0201_test
+for (i in 1:20) {
+      
+      # Load model
+      mdl_file <- str_c("models/mdl_", i, ".hdf5")
+      mdl_i <- load_model_hdf5(filepath = mdl_file)
       
       # Make predictions
-      predictions <- all_models[[mdl_i]] %>% 
+      predictions <- mdl_i %>% 
             predict(list(X_test_final_pep, 
                          X_test_final_CDR3b))
-      # %>% 
-      #       as.array()
       
       # Add predictions to dataset
-      pred_mdl <- str_c("pred_mdl_", i)
-      # a <- a %>% 
-      #       bind_cols(predictions)
-      a <- a %>%
-             mutate(!!pred_mdl := predictions)
+      pred_mdl_i <- str_c("pred_mdl_", i)
+      data_A0201_test_preds <- data_A0201_test_preds %>%
+             mutate(!!pred_mdl_i := predictions)
 }
-pred_mdl <- str_c("pred_", mdl_i)
-test_partition <- test_partition %>%
-      mutate(!!pred_mdl := as.numeric(
-            meta_data[[mdl_i]]$predictions_test)
-      )
+
+## Calculate mean predictions
+data_A0201_test_preds <- data_A0201_test_preds %>% 
+      mutate(pred_mdl_mean = select(., contains("pred_")) %>% 
+                   rowMeans(na.rm = TRUE))
+
 
 # Visualise data ----------------------------------------------------------
 
