@@ -39,7 +39,7 @@ blosum62 <- blosum62_X %>%
 ## Subset
 set.seed(2005)
 data_A0201 <- data_A0201 %>% # SUBSET
-      sample_n(1000) #1000, 7-8min
+      sample_n(3000) #1000, 7-8min
 
 
 ## Pad short CDR3b sequences with "X" to same length
@@ -362,7 +362,7 @@ y_test_final <- data_A0201_test %>%
 
 
 ## Evaluate 20 models on test data never seen before
-data_A0201_test_preds <- data_A0201_test
+data_A0201_mdl_preds_test <- data_A0201_test
 for (i in 1:20) {
       
       # Load model
@@ -372,7 +372,8 @@ for (i in 1:20) {
       # Make predictions
       predictions <- mdl_i %>% 
             predict(list(X_test_final_pep, 
-                         X_test_final_CDR3b))
+                         X_test_final_CDR3b)) %>% 
+            as.numeric()
       
       # Add predictions to dataset
       pred_mdl_i <- str_c("pred_mdl_", i)
@@ -383,9 +384,10 @@ for (i in 1:20) {
 ## Calculate mean predictions
 data_A0201_mdl_preds_test <- data_A0201_mdl_preds_test %>% 
       mutate(pred_mdl_mean = select(., contains("pred_")) %>% 
-                   rowMeans(na.rm = TRUE))
+                   rowMeans(na.rm = TRUE)) %>% 
+      as_tibble()
 
 
 # Write data --------------------------------------------------------------
 write_tsv(x = data_A0201_mdl_preds_test,
-          file = "data/04_data_A0201_test_preds.tsv.gz")
+          file = "data/04_data_A0201_mdl_preds_test.tsv.gz")
