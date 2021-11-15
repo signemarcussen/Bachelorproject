@@ -8,20 +8,22 @@ library("keras")
 suppressWarnings(library("PepTools"))
 library("pROC")
 
+
 # Define functions --------------------------------------------------------
 source("Rscripts/99_project_functions.R")
 
 
 # Load data ---------------------------------------------------------------
+data_A0201_mdl_preds_test <- read_tsv(file = "data/04_data_A0201_mdl_preds_test")
 
 
-## Predictions of the model 
-prediction <- cnn_model %>% predict(list(X_test_pep,X_test_CDR3b))
-
+# Wrangle data ------------------------------------------------------------
 ## ROC and AUC 
 roc_obj <- roc(response = y_test, predictor = prediction[,1], plot = TRUE)
 auc_obj <- round(auc(y_test, prediction[,1]),4)
 
+
+# Visualize data ----------------------------------------------------------
 #create ROC plot
 ggroc(roc_obj, colour = 'steelblue', size = 2) +
       ggtitle(paste0('ROC Curve ', '(AUC = ', auc_obj, ')'))
@@ -43,9 +45,6 @@ ggplot(my_coords) +
       geom_vline(xintercept = best_coords$threshold, linetype='dotted', color = 'black')+
       labs(x = "Cutoff for predicted probability", y = "Sensitivity, Specificity") +
       theme_minimal()
-
-
-# Visualise data ----------------------------------------------------------
 
 
 # Write data --------------------------------------------------------------

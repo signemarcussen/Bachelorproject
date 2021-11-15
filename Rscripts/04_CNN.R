@@ -376,17 +376,16 @@ for (i in 1:20) {
       
       # Add predictions to dataset
       pred_mdl_i <- str_c("pred_mdl_", i)
-      data_A0201_test_preds <- data_A0201_test_preds %>%
+      data_A0201_mdl_preds_test <- data_A0201_mdl_preds_test %>%
              mutate(!!pred_mdl_i := predictions)
 }
 
 ## Calculate mean predictions
-data_A0201_test_preds <- data_A0201_test_preds %>% 
+data_A0201_mdl_preds_test <- data_A0201_mdl_preds_test %>% 
       mutate(pred_mdl_mean = select(., contains("pred_")) %>% 
                    rowMeans(na.rm = TRUE))
 
 
-# Visualise data ----------------------------------------------------------
-
-
 # Write data --------------------------------------------------------------
+write_tsv(x = data_A0201_mdl_preds_test,
+          file = "data/04_data_A0201_test_preds.tsv.gz")
