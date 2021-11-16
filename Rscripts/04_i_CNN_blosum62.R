@@ -90,7 +90,7 @@ input_shape_CDR3b <- c(max_CDR3b, 21, 1)
 
 # Train 20 models ---------------------------------------------------------
 meta_data <- list()
-model_dir <- "models/"
+model_dir <- "models/blosum62/"
 outer_folds <- 1:5
 inner_folds <- 1:4
 i <- 1
@@ -367,7 +367,7 @@ data_A0201_mdl_preds_test <- data_A0201_test
 for (i in 1:20) {
       
       # Load model
-      mdl_file <- str_c("models/mdl_", i, ".hdf5")
+      mdl_file <- str_c("models/blosum62/mdl_", i, ".hdf5")
       mdl_i <- load_model_hdf5(filepath = mdl_file)
       
       # Make predictions
@@ -391,5 +391,5 @@ data_A0201_mdl_preds_test <- data_A0201_mdl_preds_test %>%
 
 # Write data --------------------------------------------------------------
 write_tsv(x = data_A0201_mdl_preds_test,
-          file = "data/04_data_A0201_mdl_preds_test.tsv.gz")
+          file = "data/04_i_data_A0201_mdl_preds_test.tsv.gz")
 save(meta_data, file = "models/meta_data.Rdata")

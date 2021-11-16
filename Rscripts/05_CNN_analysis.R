@@ -15,7 +15,7 @@ source("Rscripts/99_project_functions.R")
 
 
 # Load data ---------------------------------------------------------------
-data_A0201_mdl_preds_test <- read_tsv(file = "data/04_data_A0201_mdl_preds_test.tsv.gz")
+data_A0201_mdl_preds_test <- read_tsv(file = "data/04_i_data_A0201_mdl_preds_test.tsv.gz")
 
 
 # Wrangle data ------------------------------------------------------------

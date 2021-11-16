@@ -376,5 +376,5 @@ data_A0201_onehot_mdl_preds_test <- data_A0201_onehot_mdl_preds_test %>%
 
 # Write data --------------------------------------------------------------
 write_tsv(x = data_A0201_onehot_mdl_preds_test,
-          file = "data/04_data_A0201_onehot_mdl_preds_test.tsv.gz")
+          file = "data/04_ii_data_A0201_onehot_mdl_preds_test.tsv.gz")
 
