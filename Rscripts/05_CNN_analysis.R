@@ -110,9 +110,14 @@ data_A0201_mdl_preds_test %>%
    theme_minimal()
 
 
-   scale_fill_gradient(low = "blue", high = "red")
-  
-plot_c
+#-----------------------
+random <- runif(nrow(data_A0201_mdl_preds_test), 0, 0.5)
+   
+data_A0201_mdl_preds_test %>% ggplot() +
+   geom_point(mapping = aes(x = Binding+random,
+                            y= y_pred+random,
+                            fill = correct))+
+   theme_minimal()
  
 # Write data --------------------------------------------------------------
 
