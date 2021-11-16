@@ -7,6 +7,7 @@ suppressWarnings(library("tidyverse"))
 library("keras")
 suppressWarnings(library("PepTools"))
 library("pROC")
+library("ggplot2")
 
 
 # Define functions --------------------------------------------------------
@@ -111,14 +112,28 @@ data_A0201_mdl_preds_test %>%
 
 
 #-----------------------
-random <- runif(nrow(data_A0201_mdl_preds_test), 0, 0.5)
+random <- runif(nrow(data_A0201_mdl_preds_test), -0.4, 0.4)
+random1 <- runif(nrow(data_A0201_mdl_preds_test), -0.4, 0.4)
    
-data_A0201_mdl_preds_test %>% ggplot(.,
-                                     mapping = aes(x = Binding,
-                                                   y= y_pred,
-                                                   fill = correct)) +
-   geom_point() +
-   theme_minimal()
+data_A0201_mdl_preds_test %>% 
+   ggplot(., mapping = aes(x = y_pred+random1, y = Binding+random)) +
+   geom_point(aes(colour=factor(correct))) +
+   scale_x_discrete(name = "Predicted Class",
+                    limits = c(0,1)) +
+   scale_y_discrete(name = "Actual Class",
+                    limits = c(0,1)) +
+   theme_minimal()+ 
+   theme(plot.title = element_text(face = "bold", 
+                                   size = 16),
+         plot.subtitle = element_text(face = "italic")) +
+   labs(title = "Confusion Matrix",
+        subtitle = "Classification performance",
+        colour = "Correct classification?")
  
 # Write data --------------------------------------------------------------
 
+# ggsave(filename = "results/04_plot_preTreatContinuous.png",
+#        plot = plot1,
+#        width = 9.22,
+#        height = 3.99,
+#        units = "in")
