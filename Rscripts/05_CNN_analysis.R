@@ -33,8 +33,8 @@ AUC_obj <- auc(ROC_obj) %>%
 data_A0201_mdl_preds_test <- data_A0201_mdl_preds_test %>% 
    mutate(y_pred = case_when(pred_mdl_mean >= 0.5 ~ 1,
                              pred_mdl_mean < 0.5 ~ 0),
-          correct = case_when(Binding == y_pred ~ "Yes",
-                              Binding != y_pred ~ "No"))
+          correct = factor(case_when(Binding == y_pred ~ "Yes",
+                              Binding != y_pred ~ "No")))
           # Binding = as.factor(Binding),
           # pred_mdl_mean = as.factor(pred_mdl_mean))
 
@@ -103,7 +103,7 @@ data_A0201_mdl_preds_test %>%
           y_pred = factor(y_pred,levels=c(1,0))) %>% 
    ggplot(.,mapping = aes(x = y_pred,
                      y= Binding,
-                     fill=correct)) + 
+                     fill=correct))+
    geom_tile() +
    #geom_text(aes(label= paste("",CM)))+
    scale_x_discrete(position = "top")
@@ -113,10 +113,11 @@ data_A0201_mdl_preds_test %>%
 #-----------------------
 random <- runif(nrow(data_A0201_mdl_preds_test), 0, 0.5)
    
-data_A0201_mdl_preds_test %>% ggplot() +
-   geom_point(mapping = aes(x = Binding+random,
-                            y= y_pred+random,
-                            fill = correct))+
+data_A0201_mdl_preds_test %>% ggplot(.,
+                                     mapping = aes(x = Binding,
+                                                   y= y_pred,
+                                                   fill = correct)) +
+   geom_point() +
    theme_minimal()
  
 # Write data --------------------------------------------------------------
