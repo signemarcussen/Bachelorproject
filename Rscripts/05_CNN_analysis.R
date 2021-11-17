@@ -24,7 +24,7 @@ data_A0201_mdl_preds_test <- read_tsv(file = "data/04_i_data_A0201_mdl_preds_tes
 ROC_obj <- data_A0201_mdl_preds_test %>% 
       roc(response = Binding, 
           predictor = pred_mdl_mean, 
-          plot = FALSE)
+          plot = TRUE)
 AUC_obj <- auc(ROC_obj) %>% 
       round(digits = 2)
 
@@ -42,15 +42,15 @@ data_A0201_mdl_preds_test <- data_A0201_mdl_preds_test %>%
 # Visualize data ----------------------------------------------------------
 
 ## ROC plot
-ROC_obj %>% ggroc(
+ROC_obj %>% ggroc(legacy.axes = TRUE,
       colour = 'steelblue', 
                   size = 1.5)  + 
-   geom_segment(aes(x = 1, xend = 0, y = 0, yend = 1), 
+   geom_segment(aes(x = 0, xend = 1, y = 0, yend = 1), 
                 color="grey", linetype="dashed")+
    ggtitle(paste0('ROC Curve ',
                   '(AUC = ', AUC_obj, ')'))+
-   labs(x = "Specificity", 
-        y = "Sensitivity") +
+   labs(x = "Sensitivity",
+        y = "1-Specificity") +
    theme_minimal()
 
 
