@@ -39,11 +39,6 @@ data_clean[HLA_X] <- data_clean[HLA_X] %>%
                 end = 7)) %>% 
    as_tibble()
 
-# Work with subset
-# set.seed(1234)
-# data_clean <- data_clean %>% sample_n(50)
-
-
 # Write data --------------------------------------------------------------
 write_tsv(x = data_clean,
           file = "data/02_data_clean.tsv.gz")
