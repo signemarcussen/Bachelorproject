@@ -39,7 +39,7 @@ blosum62 <- blosum62_X %>%
 ## Subset
 set.seed(2005)
 data_A0201 <- data_A0201 %>% # SUBSET
-      sample_n(3000) #1000, 7-8min
+      sample_n(300) #1000, 7-8min
 
 
 ## Pad short CDR3b sequences with "X" to same length
@@ -81,7 +81,7 @@ partitions <- data_A0201 %>%
 # Build model architecture ------------------------------------------------
 
 ## Set hyperparameters
-n_epochs <- 50 #300 / 50
+n_epochs <- 10 #300 / 50
 batch_size <- 128
 loss_func <- "binary_crossentropy"
 learn_rate <- 0.001
@@ -93,10 +93,11 @@ meta_data <- list()
 model_dir <- "models/blosum62/"
 outer_folds <- 1:5
 inner_folds <- 1:4
-i <- 1
+i <- 0
 for (outer_i in outer_folds) {
       for (inner_j in inner_folds) {
             
+            i <- i + 1
             print(paste0("Training model ", i, ".."))
             
             # Set model architecture ------------------------------
@@ -229,12 +230,11 @@ for (outer_i in outer_folds) {
             # Set model file
             mdl_i <- str_c("mdl_", i)
             model_file <- str_c(model_dir, mdl_i, ".hdf5")
-            i <- i + 1
             
             # Set callbacks used for early stopping
             callbacks_list <- list(
                   callback_early_stopping(monitor = "val_loss",
-                                          patience = 10),
+                                          patience = 3),
                   callback_model_checkpoint(filepath = model_file,
                                             monitor = "val_loss",
                                             save_best_only = TRUE)
@@ -392,4 +392,3 @@ data_A0201_mdl_preds_test <- data_A0201_mdl_preds_test %>%
 # Write data --------------------------------------------------------------
 write_tsv(x = data_A0201_mdl_preds_test,
           file = "data/04_i_data_A0201_mdl_preds_test.tsv.gz")
-save(meta_data, file = "models/meta_data.Rdata")
