@@ -212,7 +212,7 @@ for (outer_i in outer_folds) {
             # Compile model
             cnn_model %>% 
                   compile(loss = loss_func,
-                          optimizer = optimizer_rmsprop(learning_rate = learn_rate),
+                          optimizer = optimizer_adam(learning_rate = learn_rate),
                           metrics = "accuracy")      
             
             
@@ -387,6 +387,10 @@ data_A0201_mdl_preds_test <- data_A0201_mdl_preds_test %>%
       mutate(pred_mdl_mean = select(., contains("pred_")) %>% 
                    rowMeans(na.rm = TRUE)) %>% 
       as_tibble()
+
+# Specify trained model and save the predictions 
+write_tsv(x = data_A0201_mdl_preds_test,
+          file = "models/pred_blosum62/pred_B02.tsv.gz")
 
 
 # Write data --------------------------------------------------------------
