@@ -49,8 +49,8 @@ ROC_obj %>% ggroc(legacy.axes = TRUE,
                 color="grey", linetype="dashed")+
    ggtitle(paste0('ROC Curve ',
                   '(AUC = ', AUC_obj, ')'))+
-   labs(x = "Sensitivity",
-        y = "1-Specificity") +
+   labs(x = "1-Specificity",
+        y = "Sensitivity") +
    theme_minimal()
 
 
@@ -61,26 +61,28 @@ my_coords <- coords(ROC_obj,
 best_coords <- coords(ROC_obj, 
                       x = "best", 
                       best.method = "youden") 
+
+#colors <- c('Specificity'= 'Red', 'sensitivity' = 'Blue')
+
 ggplot(my_coords) +
       geom_line(mapping = aes(y = specificity, 
                               x = threshold, 
-                              color = 'red'))+
+                              color = 'Specificity'))+
       geom_line(mapping = aes(y = sensitivity, 
                               x = threshold, 
-                              color = 'blue'))+
-      geom_hline(mapping = aes(yintercept = best_coords$specificity, 
-                               color = 'red'),
-                 linetype='dotted') +
-      geom_hline(mapping = aes(yintercept = best_coords$sensitivity, 
-                               color = 'blue'), 
+                              color = 'Sensitivity'))+
+      # geom_hline(mapping = aes(yintercept = best_coords$specificity, 
+      #                          color = 'red'),
+      #            linetype='dotted') +
+      # geom_hline(mapping = aes(yintercept = best_coords$sensitivity, 
+      #                          color = 'blue'), 
+      #            linetype='dotted')+
+      geom_vline(xintercept = best_coords$threshold,
                  linetype='dotted')+
-      geom_vline(xintercept = best_coords$threshold, 
-                 linetype='dotted', 
-                 color = 'black')+
-      labs(x = "Cutoff for predicted probability", 
-           y = "Sensitivity, Specificity") +
-      theme_minimal() +
-      theme(legend.position = "none")
+      labs(x = "Cut-off for predicted probability", 
+           y = "Sensitivity, Specificity",
+           color = " ") +
+      theme_minimal() 
       
 ## Confusion matrix
 CM <- table(data_A0201_mdl_preds_test$Binding, 
@@ -129,6 +131,19 @@ data_A0201_mdl_preds_test %>%
    labs(title = "Confusion Matrix",
         subtitle = "Classification performance",
         colour = "Correct classification?")
+# 
+# # Add one annotation
+# ggplot(data, aes(x=wt, y=mpg)) +
+#    geom_point() + # Show dots
+#    geom_label(
+#       label="Look at this!", 
+#       x=4.1,
+#       y=20,
+#       label.padding = unit(0.55, "lines"), # Rectangle size around label
+#       label.size = 0.35,
+#       color = "black",
+#       fill="#69b3a2"
+#    ) https://www.r-graph-gallery.com/275-add-text-labels-with-ggplot2.html
  
 # Write data --------------------------------------------------------------
 
