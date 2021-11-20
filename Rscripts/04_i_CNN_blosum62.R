@@ -39,7 +39,7 @@ blosum62 <- blosum62_X %>%
 ## Subset
 set.seed(2005)
 data_A0201 <- data_A0201 %>% # SUBSET
-      sample_n(300) #1000, 7-8min
+      sample_n(50000) #1000, 7-8min
 
 
 ## Pad short CDR3b sequences with "X" to same length
@@ -81,8 +81,8 @@ partitions <- data_A0201 %>%
 # Build model architecture ------------------------------------------------
 
 ## Set hyperparameters
-n_epochs <- 10 #300 / 50
-batch_size <- 128
+n_epochs <- 50 #300 / 50
+batch_size <- 300
 loss_func <- "binary_crossentropy"
 learn_rate <- 0.001
 input_shape_pep <- c(9, 20, 1)
@@ -212,7 +212,7 @@ for (outer_i in outer_folds) {
             # Compile model
             cnn_model %>% 
                   compile(loss = loss_func,
-                          optimizer = optimizer_rmsprop(learning_rate = learn_rate),
+                          optimizer = optimizer_adam(learning_rate = learn_rate),
                           metrics = "accuracy")      
             
             
@@ -234,7 +234,7 @@ for (outer_i in outer_folds) {
             # Set callbacks used for early stopping
             callbacks_list <- list(
                   callback_early_stopping(monitor = "val_loss",
-                                          patience = 3),
+                                          patience = 10),
                   callback_model_checkpoint(filepath = model_file,
                                             monitor = "val_loss",
                                             save_best_only = TRUE)
@@ -387,6 +387,10 @@ data_A0201_mdl_preds_test <- data_A0201_mdl_preds_test %>%
       mutate(pred_mdl_mean = select(., contains("pred_")) %>% 
                    rowMeans(na.rm = TRUE)) %>% 
       as_tibble()
+
+# Specify trained model and save the predictions 
+write_tsv(x = data_A0201_mdl_preds_test,
+          file = "models/pred_blosum62/pred_B02.tsv.gz")
 
 
 # Write data --------------------------------------------------------------
