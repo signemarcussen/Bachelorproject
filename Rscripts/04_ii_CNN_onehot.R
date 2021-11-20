@@ -21,7 +21,7 @@ data_A0201 <- read_tsv(file = "data/03_data_A0201_complete.tsv.gz")
 ## Subset
 set.seed(2005)
 data_A0201 <- data_A0201 %>% # SUBSET
-      sample_n(100)
+      sample_n(50000)
 
 ## Amino acids
 amino_acids = "LITSFANMPGKQYVHWDERC"
@@ -66,7 +66,7 @@ partitions <- data_A0201 %>%
 # Build model architecture ------------------------------------------------
 
 ## Set hyperparameters
-n_epochs <- 10 #300 / 50
+n_epochs <- 50 #300 / 50
 batch_size <- 128
 loss_func <- "binary_crossentropy"
 learn_rate <- 0.001
@@ -196,7 +196,7 @@ for (outer_i in outer_folds) {
             # Compile model
             cnn_model %>% 
                   compile(loss = loss_func,
-                          optimizer = optimizer_rmsprop(learning_rate = learn_rate),
+                          optimizer = optimizer_adam(learning_rate = learn_rate),
                           metrics = "accuracy")      
             
             
@@ -219,7 +219,7 @@ for (outer_i in outer_folds) {
             # Set callbacks used for early stopping
             callbacks_list <- list(
                   callback_early_stopping(monitor = "val_loss",
-                                          patience = 3),
+                                          patience = 10),
                   callback_model_checkpoint(filepath = model_file,
                                             monitor = "val_loss",
                                             save_best_only = TRUE)

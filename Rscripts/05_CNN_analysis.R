@@ -16,7 +16,7 @@ source("Rscripts/99_project_functions.R")
 
 # Load data ---------------------------------------------------------------
 data_A0201_mdl_preds_test <- read_tsv(file = "data/04_i_data_A0201_mdl_preds_test.tsv.gz")
-
+data_A0201_onehot_mdl_preds_test <- read_tsv(file = "data/04_ii_data_A0201_onehot_mdl_preds_test_ADAM50k.tsv.gz")
 
 # Wrangle data ------------------------------------------------------------
 
@@ -26,6 +26,14 @@ ROC_obj <- data_A0201_mdl_preds_test %>%
           predictor = pred_mdl_mean, 
           plot = TRUE)
 AUC_obj <- auc(ROC_obj) %>% 
+      round(digits = 2)
+
+## For One-Hot
+ROC_onehot <- data_A0201_onehot_mdl_preds_test %>% 
+      roc(response = Binding, 
+          predictor = pred_mdl_mean, 
+          plot = TRUE)
+AUC_onehot <- auc(ROC_onehot) %>% 
       round(digits = 2)
 
 # Get the class prediction w. a threshold of 0.5
@@ -52,6 +60,19 @@ ROC_obj %>% ggroc(legacy.axes = TRUE,
    labs(x = "1-Specificity",
         y = "Sensitivity") +
    theme_minimal()
+
+## ROC plot for One-Hot
+ROC_onehot %>% 
+      ggroc(legacy.axes = TRUE,
+            colour = 'steelblue', 
+            size = 1.5)  + 
+      geom_segment(aes(x = 0, xend = 1, y = 0, yend = 1), 
+                   color="grey", linetype="dashed")+
+      ggtitle(paste0('ROC Curve ',
+                     '(AUC = ', AUC_onehot, ')'))+
+      labs(x = "Sensitivity",
+           y = "1-Specificity") +
+      theme_minimal()
 
 
 ## Sensitivity / specificity plot
