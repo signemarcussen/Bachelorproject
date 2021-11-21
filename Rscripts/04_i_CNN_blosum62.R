@@ -36,10 +36,10 @@ blosum62 <- blosum62_X %>%
    as.matrix()
 
 
-## Subset
-set.seed(2005)
-data_A0201 <- data_A0201 %>% # SUBSET
-      sample_n(50000) #1000, 7-8min
+# ## Subset
+# set.seed(2005)
+# data_A0201 <- data_A0201 %>% # SUBSET
+#       sample_n(50000) #1000, 7-8min
 
 
 ## Pad short CDR3b sequences with "X" to same length
@@ -82,7 +82,7 @@ partitions <- data_A0201 %>%
 
 ## Set hyperparameters
 n_epochs <- 50 #300 / 50
-batch_size <- 300
+batch_size <- 128
 loss_func <- "binary_crossentropy"
 learn_rate <- 0.001
 input_shape_pep <- c(9, 20, 1)
@@ -212,7 +212,7 @@ for (outer_i in outer_folds) {
             # Compile model
             cnn_model %>% 
                   compile(loss = loss_func,
-                          optimizer = optimizer_adam(learning_rate = learn_rate),
+                          optimizer = optimizer_rmsprop(learning_rate = learn_rate),
                           metrics = "accuracy")      
             
             
@@ -390,7 +390,7 @@ data_A0201_mdl_preds_test <- data_A0201_mdl_preds_test %>%
 
 # Specify trained model and save the predictions 
 write_tsv(x = data_A0201_mdl_preds_test,
-          file = "models/pred_blosum62/pred_B02.tsv.gz")
+          file = "models/pred_blosum62/pred_B03.tsv.gz")
 
 
 # Write data --------------------------------------------------------------
