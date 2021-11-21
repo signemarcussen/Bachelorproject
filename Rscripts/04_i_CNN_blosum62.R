@@ -398,4 +398,6 @@ meta_data_blosum <- meta_data
 # Write data --------------------------------------------------------------
 write_tsv(x = data_A0201_mdl_preds_test,
           file = "data/04_i_data_A0201_mdl_preds_test.tsv.gz")
+write_tsv(x = data_A0201,
+          file = "data/04_i_data_A0201_mdl_preds_CV.tsv.gz")
 save(meta_data_blosum, file = "data/04_i_blosum_metadata.Rdata")
