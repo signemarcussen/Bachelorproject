@@ -157,5 +157,8 @@ data_A0201_complete %>% distinct(CDR3b)
 
 
 # Write data --------------------------------------------------------------
+write_tsv(x = data_clean_matched,
+          file = "data/03_data_clean_matched.tsv.gz")
+
 write_tsv(x = data_A0201_complete,
           file = "data/03_data_A0201_complete.tsv.gz")
