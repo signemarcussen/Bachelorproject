@@ -392,7 +392,10 @@ data_A0201_mdl_preds_test <- data_A0201_mdl_preds_test %>%
 write_tsv(x = data_A0201_mdl_preds_test,
           file = "models/pred_blosum62/pred_B03.tsv.gz")
 
+# Rename metadata for saving
+meta_data_blosum <- meta_data
 
 # Write data --------------------------------------------------------------
 write_tsv(x = data_A0201_mdl_preds_test,
           file = "data/04_i_data_A0201_mdl_preds_test.tsv.gz")
+save(meta_data_blosum, file = "data/04_i_blosum_metadata.Rdata")

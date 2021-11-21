@@ -373,6 +373,7 @@ data_A0201_onehot_mdl_preds_test <- data_A0201_onehot_mdl_preds_test %>%
                    rowMeans(na.rm = TRUE)) %>% 
       as_tibble()
 
+# Rename metadata for saving
 meta_data_onehot <- meta_data
 
 # Write data --------------------------------------------------------------
