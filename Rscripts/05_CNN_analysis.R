@@ -18,19 +18,19 @@ source("Rscripts/99_project_functions.R")
 data_A0201_mdl_preds_test <- read_tsv(file = "data/04_i_data_A0201_mdl_preds_test.tsv.gz")
 data_A0201_onehot_mdl_preds_test <- read_tsv(file = "data/04_ii_data_A0201_onehot_mdl_preds_test_RMSall.tsv.gz")
 
-# Load metadata - DONT ASSIGN IT, just load and it will load into workspace
+# Metadata - DONT ASSIGN IT, just load and it will load into workspace
+load(file = "data/04_i_blosum_metadata.Rdata")
 load(file = "data/04_ii_onehot_metadata.Rdata")
-
 
 
 # Wrangle data ------------------------------------------------------------
 
 ## ROC and AUC for Blosum
-ROC_obj <- data_A0201_mdl_preds_test %>% 
+ROC_blosum <- data_A0201_mdl_preds_test %>% 
       roc(response = Binding, 
           predictor = pred_mdl_mean, 
           plot = TRUE)
-AUC_obj <- auc(ROC_obj) %>% 
+AUC_blosum <- auc(ROC_blosum) %>% 
       round(digits = 2)
 
 ## ROC and AUC for One-Hot
@@ -54,14 +54,14 @@ data_A0201_mdl_preds_test <- data_A0201_mdl_preds_test %>%
 
 # Visualize data ----------------------------------------------------------
 
-## ROC plot
-ROC_obj %>% ggroc(legacy.axes = TRUE,
+## ROC plot for Blosum
+ROC_blosum %>% ggroc(legacy.axes = TRUE,
       colour = 'steelblue', 
                   size = 1.5)  + 
    geom_segment(aes(x = 0, xend = 1, y = 0, yend = 1), 
                 color="grey", linetype="dashed")+
    ggtitle(paste0('ROC Curve ',
-                  '(AUC = ', AUC_obj, ')'))+
+                  '(AUC = ', AUC_blosum, ')'))+
    labs(x = "1-Specificity",
         y = "Sensitivity") +
    theme_minimal()
