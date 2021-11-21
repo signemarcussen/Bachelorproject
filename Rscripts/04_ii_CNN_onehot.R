@@ -19,9 +19,9 @@ data_A0201 <- read_tsv(file = "data/03_data_A0201_complete.tsv.gz")
 
 # Wrangle data ------------------------------------------------------------
 ## Subset
-set.seed(2005)
-data_A0201 <- data_A0201 %>% # SUBSET
-      sample_n(50000)
+# set.seed(2005)
+# data_A0201 <- data_A0201 %>% # SUBSET
+#       sample_n(50000)
 
 ## Amino acids
 amino_acids = "LITSFANMPGKQYVHWDERC"
@@ -95,7 +95,7 @@ for (outer_i in outer_folds) {
                                 padding = "same",
                                 activation = 'relu',
                                 input_shape = input_shape_pep) %>% 
-                  layer_max_pooling_2d(pool_size = 2)
+                  layer_max_pooling_2d(pool_size = c(2, 2))
             pep_k3 <- peptide_input %>% 
                   layer_conv_2d(filters = 16,
                                 kernel_size = c(3, 20),
@@ -196,7 +196,7 @@ for (outer_i in outer_folds) {
             # Compile model
             cnn_model %>% 
                   compile(loss = loss_func,
-                          optimizer = optimizer_adam(learning_rate = learn_rate),
+                          optimizer = optimizer_rmsprop(learning_rate = learn_rate),
                           metrics = "accuracy")      
             
             
@@ -373,8 +373,11 @@ data_A0201_onehot_mdl_preds_test <- data_A0201_onehot_mdl_preds_test %>%
                    rowMeans(na.rm = TRUE)) %>% 
       as_tibble()
 
+meta_data_onehot <- meta_data
 
 # Write data --------------------------------------------------------------
 write_tsv(x = data_A0201_onehot_mdl_preds_test,
-          file = "data/04_ii_data_A0201_onehot_mdl_preds_test.tsv.gz")
-
+          file = "data/04_ii_data_A0201_onehot_mdl_preds_test_RMSall.tsv.gz")
+write_tsv(x = data_A0201,
+          file = "data/04_ii_data_A0201_onehot_mdl_preds_CV_RMSall.tsv.gz")
+save(meta_data_onehot, file = "data/04_ii_onehot_metadata.Rdata")

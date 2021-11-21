@@ -16,11 +16,16 @@ source("Rscripts/99_project_functions.R")
 
 # Load data ---------------------------------------------------------------
 data_A0201_mdl_preds_test <- read_tsv(file = "data/04_i_data_A0201_mdl_preds_test.tsv.gz")
-data_A0201_onehot_mdl_preds_test <- read_tsv(file = "data/04_ii_data_A0201_onehot_mdl_preds_test_ADAM50k.tsv.gz")
+data_A0201_onehot_mdl_preds_test <- read_tsv(file = "data/04_ii_data_A0201_onehot_mdl_preds_test_RMSall.tsv.gz")
+
+# Load metadata - DONT ASSIGN IT, just load and it will load into workspace
+load(file = "data/04_ii_onehot_metadata.Rdata")
+
+
 
 # Wrangle data ------------------------------------------------------------
 
-## Compute ROC and AUC 
+## ROC and AUC for Blosum
 ROC_obj <- data_A0201_mdl_preds_test %>% 
       roc(response = Binding, 
           predictor = pred_mdl_mean, 
@@ -28,7 +33,7 @@ ROC_obj <- data_A0201_mdl_preds_test %>%
 AUC_obj <- auc(ROC_obj) %>% 
       round(digits = 2)
 
-## For One-Hot
+## ROC and AUC for One-Hot
 ROC_onehot <- data_A0201_onehot_mdl_preds_test %>% 
       roc(response = Binding, 
           predictor = pred_mdl_mean, 
@@ -77,9 +82,9 @@ ROC_onehot %>%
 
 ## Sensitivity / specificity plot
 # Getting the coordinates from the ROC-curve. 
-my_coords <- coords(ROC_obj, 
+my_coords <- coords(ROC_onehot, 
                     x = "all")
-best_coords <- coords(ROC_obj, 
+best_coords <- coords(ROC_onehot, 
                       x = "best", 
                       best.method = "youden") 
 
