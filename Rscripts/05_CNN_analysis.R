@@ -26,7 +26,7 @@ onehot_CV_preds <- read_tsv(file = "data/04_ii_data_A0201_onehot_mdl_preds_CV_RM
 load(file = "data/04_i_blosum_metadata.Rdata")
 load(file = "data/04_ii_onehot_metadata.Rdata")
 
-# Wrangle data -------------------------------------------------------------------------------------
+# Wrangle data ------------------------------------------------------------
 blosum_test_preds <- blosum_test_preds %>% mutate(y_pred = case_when(pred_mdl_mean >= 0.49 ~ 1,
                                                                      pred_mdl_mean < 0.49 ~ 0),
                                                   correct = factor(case_when(Binding == y_pred ~ "Yes",
@@ -36,7 +36,30 @@ onehot_test_preds <- onehot_test_preds %>% mutate(y_pred = case_when(pred_mdl_me
                                                                      pred_mdl_mean < 0.51 ~ 0),
                                                   correct = factor(case_when(Binding == y_pred ~ "Yes",
                                                                              Binding != y_pred ~ "No")))
-# Performance plots for Blosum-encoding ------------------------------------------------------------
+
+# Accuracy and loss during training of models -----------------------------
+p <- list()
+for (i in 1:20) {
+      mdl <- str_c("mdl_", i)
+      plt <- meta_data_onehot[[mdl]]$history %>% 
+            plot()
+      p[[i]] = plt
+}
+
+(p[[1]]+p[[2]]+p[[3]]+p[[4]]+p[[5]]) / 
+      (p[[6]]+p[[7]]+p[[8]]+p[[9]]+p[[10]]) / 
+      (p[[11]]+p[[12]]+p[[13]]+p[[14]]+p[[15]]) /
+      (p[[16]]+p[[17]]+p[[18]]+p[[19]]+p[[20]])
+
+## For model 5
+training_mdl_5 <- meta_data_blosum[["mdl_5"]]$history %>% 
+      plot() +
+      xlim(1, 20) +
+      labs(title = "Model 5") +
+      theme(plot.title = element_text(hjust = 0.5))
+
+
+# Performance plots for Blosum-encoding -----------------------------------
 
 ## ROC and AUC values
 ROC_blosum_test <- blosum_test_preds %>% 
