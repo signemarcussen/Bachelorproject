@@ -14,42 +14,10 @@ library("keras")
 #data_A0201 <- read_tsv(file = "data/03_data_A0201_complete.tsv.gz")
 data_clean_all <- read_tsv(file = "data/02_data_clean_all.tsv.gz")
 data_clean_matched <- read_tsv(file = "data/03_data_clean_matched.tsv.gz")
-load(file = "data/04_i_blosum_metadata.Rdata")
-load(file = "data/04_ii_onehot_metadata.Rdata")
 
 
 # Wrangling data  ------------------------------------------------------------
 
-p <- list()
-for (i in 1:20) {
-      mdl <- str_c("mdl_", i)
-      plt <- meta_data_onehot[[mdl]]$history %>% 
-                  plot()
-      p[[i]] = plt
-}
-
-(p[[1]]+p[[2]]+p[[3]]+p[[4]]+p[[5]]) / 
-      (p[[6]]+p[[7]]+p[[8]]+p[[9]]+p[[10]]) / 
-      (p[[11]]+p[[12]]+p[[13]]+p[[14]]+p[[15]]) /
-      (p[[16]]+p[[17]]+p[[18]]+p[[19]]+p[[20]])
-
-## Monitor of acc and loss for model 5
-training_mdl_5 <- meta_data_blosum[["mdl_5"]]$history %>% 
-      plot() +
-      xlim(1, 20) +
-      labs(title = "Model 5") +
-      theme(plot.title = element_text(hjust = 0.5))
-
-p2 <- meta_data_onehot[["mdl_2"]]$history %>% 
-      plot(metrics = "loss")
-p3 <- meta_data_onehot[["mdl_3"]]$history %>% 
-      plot(metrics = "loss")
-p4 <- meta_data_onehot[["mdl_4"]]$history %>% 
-      plot(metrics = "loss") +
-      xlim(0,30) +
-      labs(title = "hej")
-
-(p1+p2) / (p3+p4)
 
 
 # Creating plots ------------------------------------------------------------
