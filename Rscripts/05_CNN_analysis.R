@@ -8,6 +8,7 @@ library("keras")
 suppressWarnings(library("PepTools"))
 library("pROC")
 library("ggplot2")
+library("patchwork")
 
 
 # Define functions --------------------------------------------------------
@@ -15,162 +16,260 @@ source("Rscripts/99_project_functions.R")
 
 
 # Load data ---------------------------------------------------------------
-data_A0201_mdl_preds_test <- read_tsv(file = "data/04_i_data_A0201_mdl_preds_test.tsv.gz")
-data_A0201_onehot_mdl_preds_test <- read_tsv(file = "data/04_ii_data_A0201_onehot_mdl_preds_test_RMSall.tsv.gz")
+blosum_test_preds <- read_tsv(file = "data/04_i_data_A0201_mdl_preds_test.tsv.gz")
+blosum_CV_preds <- read_tsv(file = "data/04_i_data_A0201_mdl_preds_CV.tsv.gz")
+
+
+onehot_test_preds <- read_tsv(file = "data/04_ii_data_A0201_onehot_mdl_preds_test_RMSall.tsv.gz")
+onehot_CV_preds <- read_tsv(file = "data/04_ii_data_A0201_onehot_mdl_preds_CV_RMSall.tsv.gz")
 
 # Metadata - DONT ASSIGN IT, just load and it will load into workspace
 load(file = "data/04_i_blosum_metadata.Rdata")
 load(file = "data/04_ii_onehot_metadata.Rdata")
 
+# Wrangle data -------------------------------------------------------------------------------------
+blosum_test_preds <- blosum_test_preds %>% mutate(y_pred = case_when(pred_mdl_mean >= 0.49 ~ 1,
+                                                                     pred_mdl_mean < 0.49 ~ 0),
+                                                  correct = factor(case_when(Binding == y_pred ~ "Yes",
+                                                                             Binding != y_pred ~ "No")))
 
-# Wrangle data ------------------------------------------------------------
+onehot_test_preds <- onehot_test_preds %>% mutate(y_pred = case_when(pred_mdl_mean >= 0.51 ~ 1,
+                                                                     pred_mdl_mean < 0.51 ~ 0),
+                                                  correct = factor(case_when(Binding == y_pred ~ "Yes",
+                                                                             Binding != y_pred ~ "No")))
+# Performance plots for Blosum-encoding ------------------------------------------------------------
 
-## ROC and AUC for Blosum
-ROC_blosum <- data_A0201_mdl_preds_test %>% 
+## ROC and AUC values
+ROC_blosum_test <- blosum_test_preds %>% 
       roc(response = Binding, 
-          predictor = pred_mdl_mean, 
-          plot = TRUE)
-AUC_blosum <- auc(ROC_blosum) %>% 
+          predictor = pred_mdl_mean)
+AUC_blosum_test <- auc(ROC_blosum_test) %>% 
       round(digits = 2)
 
-## ROC and AUC for One-Hot
-ROC_onehot <- data_A0201_onehot_mdl_preds_test %>% 
-      roc(response = Binding, 
-          predictor = pred_mdl_mean, 
-          plot = TRUE)
-AUC_onehot <- auc(ROC_onehot) %>% 
-      round(digits = 2)
-
-# Get the class prediction w. a threshold of 0.5
-#y_pred <- as.numeric(data_A0201_mdl_preds_test$pred_mdl_mean >= 0.5)
-
-data_A0201_mdl_preds_test <- data_A0201_mdl_preds_test %>% 
-   mutate(y_pred = case_when(pred_mdl_mean >= 0.5 ~ 1,
-                             pred_mdl_mean < 0.5 ~ 0),
-          correct = factor(case_when(Binding == y_pred ~ "Yes",
-                              Binding != y_pred ~ "No")))
-          # Binding = as.factor(Binding),
-          # pred_mdl_mean = as.factor(pred_mdl_mean))
-
-# Visualize data ----------------------------------------------------------
+ROC_blosum_CV <- blosum_CV_preds %>% 
+   roc(response = Binding, 
+       predictor = pred_mdl_mean)
+AUC_blosum_CV <- auc(ROC_blosum_test) %>% 
+   round(digits = 2)
 
 ## ROC plot for Blosum
-ROC_blosum %>% ggroc(legacy.axes = TRUE,
-      colour = 'steelblue', 
-                  size = 1.5)  + 
+p_ROC_blosum <- ROC_blosum_test %>% ggroc(legacy.axes = TRUE,
+                     colour = 'steelblue', 
+                     size = 1.5) + 
    geom_segment(aes(x = 0, xend = 1, y = 0, yend = 1), 
-                color="grey", linetype="dashed")+
-   ggtitle(paste0('ROC Curve ',
-                  '(AUC = ', AUC_blosum, ')'))+
+                color="grey", linetype="dashed") +
+   theme_minimal() +   
+   theme(plot.title = element_text(hjust = 0.5,
+                                   size = 10)) + 
    labs(x = "1-Specificity",
-        y = "Sensitivity") +
-   theme_minimal()
+        y = "Sensitivity", 
+        title = paste0('ROC Curve for Blosum encoding, ',
+                       'AUC = ', AUC_blosum_test,''))
+p_ROC_blosum
+
+## Sensitivity / specificity plot, Blosum
+# Getting the coordinates from the ROC-curve. 
+coords_blosum <- coords(ROC_blosum_test, 
+                        x = "all")
+
+p_ss_blosum <- ggplot(coords_blosum) +
+   geom_line(mapping = aes(y = specificity, 
+                           x = threshold, 
+                           color = 'Specificity'))+
+   geom_line(mapping = aes(y = sensitivity, 
+                           x = threshold, 
+                           color = 'Sensitivity'))+
+   geom_vline(xintercept = 0.49,
+              linetype='dotted')+
+   theme_minimal() +
+   theme(plot.title = element_text(hjust = 0.5,
+                                   size = 10)) +
+   labs(x = "Cut-off for predicted probability", 
+        y = "Sensitivity, Specificity",
+        title = "SS plot Blosum, cut-off ~0.49",
+        color = " ") 
+p_ss_blosum
+
+## Confusion matrix Blosum
+## Confusion matrix
+# Binding = row, y_pred = column
+CM_blosum <- table(blosum_test_preds$Binding, 
+            blosum_test_preds$y_pred)
+
+# True positives 
+TP_blosum <- CM_blosum[2,2]
+
+# True negatives 
+TN_blosum <- CM_blosum[1,1]
+
+# False positives 
+FP_blosum <- CM_blosum[1,2]
+
+# False negatives 
+FN_blosum <- CM_blosum[2,1]
+
+# Create random numbers to spread the data points
+random <- runif(nrow(onehot_test_preds), -0.45, 0.45)
+random1 <- runif(nrow(onehot_test_preds), -0.45, 0.45)
+
+
+p_blosum_CM <- blosum_test_preds %>% 
+   ggplot(., mapping = aes(x = y_pred+random1, y = Binding+random)) +
+   geom_point(aes(colour = factor(correct)),
+              size = 0.5) +
+   annotate(geom = "text", 
+            x = 0, y = 0, 
+            label = paste0('TN = ', TN_blosum),
+            color = "black",
+            size=8) +
+   annotate(geom = "text", 
+            x = 1, y = 0, 
+            label = paste0('FP = ', FP_blosum),
+            color = "black",
+            size=8) +
+   annotate(geom = "text", 
+            x = 0, y = 1, 
+            label = paste0('FN = ', FN_blosum),
+            color = "black",
+            size=8) +
+   annotate(geom = "text", 
+            x = 1, y = 1, 
+            label = paste0('TP = ', TP_blosum),
+            color = "black",
+            size=8) +
+   scale_x_continuous(name = "Predicted Class",
+                      breaks = c(0,1)) +
+   scale_y_continuous(name = "Actual Class",
+                      breaks = c(0,1)) +
+   theme_minimal()+ 
+   theme(plot.title = element_text( size = 10,
+                                    hjust = 0.5),
+         plot.subtitle = element_text(face = "italic"),
+         legend.position = "none") +
+   labs(title = "Confusion Matrix, Blosum encoding w cut-off threshold  = 0.49")
+p_blosum_CM
+
+
+# Performance plots for One-Hot-encoding ------------------------------------------------------------
+
+## ROC and AUC values
+ROC_onehot_test <- onehot_test_preds %>% 
+   roc(response = Binding, 
+       predictor = pred_mdl_mean)
+AUC_onehot_test <- auc(ROC_onehot_test) %>% 
+   round(digits = 2)
+
+ROC_onehot_CV <- onehot_CV_preds %>% 
+   roc(response = Binding, 
+       predictor = pred_mdl_mean)
+AUC_onehot_CV <- auc(ROC_onehot_test) %>% 
+   round(digits = 2)
 
 ## ROC plot for One-Hot
-ROC_onehot %>% 
-      ggroc(legacy.axes = TRUE,
-            colour = 'steelblue', 
-            size = 1.5)  + 
-      geom_segment(aes(x = 0, xend = 1, y = 0, yend = 1), 
-                   color="grey", linetype="dashed")+
-      ggtitle(paste0('ROC Curve ',
-                     '(AUC = ', AUC_onehot, ')'))+
-      labs(x = "Sensitivity",
-           y = "1-Specificity") +
-      theme_minimal()
+p_ROC_onehot <- ROC_onehot_test %>% ggroc(legacy.axes = TRUE,
+                          colour = 'steelblue', 
+                          size = 1.5)  + 
+   geom_segment(aes(x = 0, xend = 1, y = 0, yend = 1), 
+                color="grey", linetype="dashed")+
+   theme_minimal() +   
+   theme(plot.title = element_text(hjust = 0.5,
+                                   size = 10)) + 
+   labs(x = "1-Specificity",
+        y = "Sensitivity", 
+        title = paste0('ROC Curve for One-Hot encoding, ',
+                       'AUC = ', AUC_onehot_test,''))
+p_ROC_onehot
 
-
-## Sensitivity / specificity plot
+## Sensitivity / specificity plot, One-Hot
 # Getting the coordinates from the ROC-curve. 
-my_coords <- coords(ROC_onehot, 
+coords_onehot <- coords(ROC_onehot_test, 
                     x = "all")
-best_coords <- coords(ROC_onehot, 
-                      x = "best", 
-                      best.method = "youden") 
 
-#colors <- c('Specificity'= 'Red', 'sensitivity' = 'Blue')
+p_ss_onehot <- ggplot(coords_onehot) +
+   geom_line(mapping = aes(y = specificity, 
+                           x = threshold, 
+                           color = 'Specificity'))+
+   geom_line(mapping = aes(y = sensitivity, 
+                           x = threshold, 
+                           color = 'Sensitivity'))+
+   geom_vline(xintercept = 0.51,
+              linetype='dotted')+
+   theme_minimal() +
+   theme(plot.title = element_text(hjust = 0.5,
+                                   size = 10)) +
+   labs(x = "Cut-off for predicted probability", 
+        y = "Sensitivity, Specificity",
+        title = "ss plot One-Hot, cut-off ~ 0.51",
+        color = " ")
 
-ggplot(my_coords) +
-      geom_line(mapping = aes(y = specificity, 
-                              x = threshold, 
-                              color = 'Specificity'))+
-      geom_line(mapping = aes(y = sensitivity, 
-                              x = threshold, 
-                              color = 'Sensitivity'))+
-      # geom_hline(mapping = aes(yintercept = best_coords$specificity, 
-      #                          color = 'red'),
-      #            linetype='dotted') +
-      # geom_hline(mapping = aes(yintercept = best_coords$sensitivity, 
-      #                          color = 'blue'), 
-      #            linetype='dotted')+
-      geom_vline(xintercept = best_coords$threshold,
-                 linetype='dotted')+
-      labs(x = "Cut-off for predicted probability", 
-           y = "Sensitivity, Specificity",
-           color = " ") +
-      theme_minimal() 
-      
+p_ss_onehot
+
+## Confusion matrix One-Hot
 ## Confusion matrix
-CM <- table(data_A0201_mdl_preds_test$Binding, 
-            data_A0201_mdl_preds_test$y_pred) %>% as.matrix()
+CM <- table(onehot_test_preds$Binding, 
+            onehot_test_preds$y_pred) %>% as.matrix()
 
-#True positives 
+# True positives 
 TP <- CM[2,2]
 
-#True negatives 
+# True negatives 
 TN <- CM[1,1]
 
-#False positives 
-FP <- CM[2,1]
-
-#False negatives 
-FN <- CM[1,2]
-
-
-data_A0201_mdl_preds_test %>% 
-   mutate(Binding = factor(Binding, levels= c(1,0)),
-          y_pred = factor(y_pred,levels=c(1,0))) %>% 
-   ggplot(.,mapping = aes(x = y_pred,
-                     y= Binding,
-                     fill=correct))+
-   geom_tile() +
-   #geom_text(aes(label= paste("",CM)))+
-   scale_x_discrete(position = "top")
-   theme_minimal()
-
-
-#-----------------------
-random <- runif(nrow(data_A0201_mdl_preds_test), -0.4, 0.4)
-random1 <- runif(nrow(data_A0201_mdl_preds_test), -0.4, 0.4)
-   
-data_A0201_mdl_preds_test %>% 
-   ggplot(., mapping = aes(x = y_pred+random1, y = Binding+random)) +
-   geom_point(aes(colour=factor(correct))) +
-   scale_x_discrete(name = "Predicted Class",
-                    limits = c(0,1)) +
-   scale_y_discrete(name = "Actual Class",
-                    limits = c(0,1)) +
-   theme_minimal()+ 
-   theme(plot.title = element_text(face = "bold", 
-                                   size = 16),
-         plot.subtitle = element_text(face = "italic")) +
-   labs(title = "Confusion Matrix",
-        subtitle = "Classification performance",
-        colour = "Correct classification?")
-# 
-# # Add one annotation
-# ggplot(data, aes(x=wt, y=mpg)) +
-#    geom_point() + # Show dots
-#    geom_label(
-#       label="Look at this!", 
-#       x=4.1,
-#       y=20,
-#       label.padding = unit(0.55, "lines"), # Rectangle size around label
-#       label.size = 0.35,
-#       color = "black",
-#       fill="#69b3a2"
-#    ) https://www.r-graph-gallery.com/275-add-text-labels-with-ggplot2.html
+# False positives 
+FP <- CM[1,2]
  
+# False negatives 
+FN <- CM[2,1]
+
+# Create random numbers to spread the data points
+random <- runif(nrow(onehot_test_preds), -0.45, 0.45)
+random1 <- runif(nrow(onehot_test_preds), -0.45, 0.45)
+
+
+p_onehot_CM <- onehot_test_preds %>% 
+   ggplot(., mapping = aes(x = y_pred+random1, y = Binding+random)) +
+   geom_point(aes(colour = factor(correct)),
+              size = 0.5) +
+   annotate(geom = "text", 
+            x = 0, y = 0, 
+            label = paste0('TN = ', TN),
+            color = "black",
+            size=8) +
+   annotate(geom = "text", 
+            x = 1, y = 0, 
+            label = paste0('FP = ', FP),
+            color = "black",
+            size=8) +
+   annotate(geom = "text", 
+            x = 0, y = 1, 
+            label = paste0('FN = ', FN),
+            color = "black",
+            size=8) +
+   annotate(geom = "text", 
+            x = 1, y = 1, 
+            label = paste0('TP = ', TP),
+            color = "black",
+            size=8) +
+   scale_x_continuous(name = "Predicted Class",
+                      breaks = c(0,1)) +
+   scale_y_continuous(name = "Actual Class",
+                      breaks = c(0,1)) +
+   theme_minimal()+ 
+   theme(plot.title = element_text(size = 10,
+                                   hjust = 0.5),
+         legend.position = "none") +
+   labs(title = "Confusion Matrix, One-Hot encoding w cut-off threshold  = 0.51")
+p_onehot_CM
+
+# Collect plots by type -----------------------------------------------------------------------------------------------
+
+p_ROC_blosum + p_ROC_onehot
+
+p_ss_blosum + p_ss_onehot
+
+p_blosum_CM + p_onehot_CM
+
+
 # Write data --------------------------------------------------------------
 
 # ggsave(filename = "results/04_plot_preTreatContinuous.png",
