@@ -5,14 +5,13 @@ rm(list = ls())
 # Load libraries ----------------------------------------------------------
 suppressWarnings(library("tidyverse"))
 library("keras")
-suppressWarnings(library("PepTools"))
 library("pROC")
 library("ggplot2")
 library("patchwork")
 
 
 # Define functions --------------------------------------------------------
-source("Rscripts/99_project_functions.R")
+#source("Rscripts/99_project_functions.R")
 
 
 # Load data ---------------------------------------------------------------
@@ -107,6 +106,9 @@ FP_blosum <- CM_blosum[1,2]
 
 # False negatives 
 FN_blosum <- CM_blosum[2,1]
+
+# Accucary
+(TP_blosum+TN_blosum)/(TP_blosum+TN_blosum+FP_blosum+FN_blosum)
 
 # Create random numbers to spread the data points
 random <- runif(nrow(onehot_test_preds), -0.45, 0.45)
@@ -221,6 +223,9 @@ FP <- CM[1,2]
 # False negatives 
 FN <- CM[2,1]
 
+# Accuracy 
+(TP+TN)/(TP+TN+FP+FN)
+
 # Create random numbers to spread the data points
 random <- runif(nrow(onehot_test_preds), -0.45, 0.45)
 random1 <- runif(nrow(onehot_test_preds), -0.45, 0.45)
@@ -270,6 +275,28 @@ p_ss_blosum + p_ss_onehot
 p_blosum_CM + p_onehot_CM
 
 
+
+ggroc(list('One-Hot'= ROC_onehot_test,
+           'Blosum' = ROC_blosum_test),
+      legacy.axes = TRUE,
+      size = 1) + 
+   # scale_colour_manual(values = c("darkblue", "steelblue")) +
+   geom_segment(aes(x = 0, xend = 1, y = 0, yend = 1), 
+                color="grey", linetype="dashed") + 
+   # scale_x_continuous(name = "1-Specificity",
+   #                    breaks = c(0,1)) +
+   # scale_y_continuous(name = "Sensitivity",
+   #                    breaks = c(0,1)) +
+   theme_minimal() +   
+   theme(plot.title = element_text(hjust = 0.5,
+                                   size = 10),
+         legend.position = c(0.9,0.1)) + 
+   labs(title = "ROC curve") +
+   scale_fill_discrete(name = " ", 
+                       labels = c("A", "B"))  
+           
+           # paste0('ROC Curve for One-Hot encoding, ',
+           #        'AUC = ', AUC_onehot_test,''))
 # Write data --------------------------------------------------------------
 
 # ggsave(filename = "results/04_plot_preTreatContinuous.png",
