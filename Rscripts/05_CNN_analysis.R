@@ -299,11 +299,11 @@ p_blosum_CM + p_onehot_CM
 
 
 
-ggroc(list('One-Hot'= ROC_onehot_test,
-           'Blosum' = ROC_blosum_test),
+ggroc(list('One-Hot, AUC = 0.79'= ROC_onehot_test,
+           'Blosum, AUC = 0.77' = ROC_blosum_test),
       legacy.axes = TRUE,
       size = 1) + 
-   # scale_colour_manual(values = c("darkblue", "steelblue")) +
+   scale_colour_manual(" ",values = c("darkblue", "steelblue")) +
    geom_segment(aes(x = 0, xend = 1, y = 0, yend = 1), 
                 color="grey", linetype="dashed") + 
    # scale_x_continuous(name = "1-Specificity",
@@ -313,10 +313,8 @@ ggroc(list('One-Hot'= ROC_onehot_test,
    theme_minimal() +   
    theme(plot.title = element_text(hjust = 0.5,
                                    size = 10),
-         legend.position = c(0.9,0.1)) + 
-   labs(title = "ROC curve") +
-   scale_fill_discrete(name = " ", 
-                       labels = c("A", "B"))  
+         legend.position = c(0.9,0.15)) + 
+   labs(title = "ROC curve")  
            
            # paste0('ROC Curve for One-Hot encoding, ',
            #        'AUC = ', AUC_onehot_test,''))
