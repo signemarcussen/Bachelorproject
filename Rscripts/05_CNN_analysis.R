@@ -71,7 +71,7 @@ AUC_blosum_test <- auc(ROC_blosum_test) %>%
 ROC_blosum_CV <- blosum_CV_preds %>% 
    roc(response = Binding, 
        predictor = pred_mdl_mean)
-AUC_blosum_CV <- auc(ROC_blosum_test) %>% 
+AUC_blosum_CV <- auc(ROC_blosum_CV) %>% 
    round(digits = 2)
 
 ## ROC plot for Blosum
@@ -181,13 +181,14 @@ p_blosum_CM
 ROC_onehot_test <- onehot_test_preds %>% 
    roc(response = Binding, 
        predictor = pred_mdl_mean)
+
 AUC_onehot_test <- auc(ROC_onehot_test) %>% 
    round(digits = 2)
 
 ROC_onehot_CV <- onehot_CV_preds %>% 
    roc(response = Binding, 
        predictor = pred_mdl_mean)
-AUC_onehot_CV <- auc(ROC_onehot_test) %>% 
+AUC_onehot_CV <- auc(ROC_onehot_CV) %>% 
    round(digits = 2)
 
 ## ROC plot for One-Hot
@@ -303,7 +304,7 @@ ggroc(list('One-Hot, AUC = 0.79'= ROC_onehot_test,
            'Blosum, AUC = 0.77' = ROC_blosum_test),
       legacy.axes = TRUE,
       size = 1) + 
-   scale_colour_manual(" ",values = c("darkblue", "steelblue")) +
+   scale_colour_manual("Model",values = c("darkblue", "steelblue")) +
    geom_segment(aes(x = 0, xend = 1, y = 0, yend = 1), 
                 color="grey", linetype="dashed") + 
    # scale_x_continuous(name = "1-Specificity",
