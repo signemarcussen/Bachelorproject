@@ -14,11 +14,7 @@ library("keras")
 #data_A0201 <- read_tsv(file = "data/03_data_A0201_complete.tsv.gz")
 data_clean_all <- read_tsv(file = "data/02_data_clean_all.tsv.gz")
 data_clean_matched <- read_tsv(file = "data/03_data_clean_matched.tsv.gz")
-
-
-# Wrangling data  ------------------------------------------------------------
-
-
+data_A0201 <- read_tsv(file = "data/03_data_A0201_complete.tsv.gz")
 
 # Creating plots ------------------------------------------------------------
 
@@ -32,40 +28,68 @@ top_alelle <- data_clean_matched %>%
 
 inner_join(data_clean_matched, 
            top_alelle, by = "Allele") %>% 
-      ggplot(aes(x = Allele)) +
+      ggplot(aes(x = Allele),
+             fill = Allele) +
       geom_text(aes(label = ..count..), 
              stat = "count", vjust = -0.5, 
-             colour = "black", size = 3) +
-      geom_bar(fill="#3366CC") +
-      theme_minimal() + 
-      theme(axis.text.x = element_text(angle = 35, 
-                                       hjust = 1)) +
+             colour = "black", size = 4) +
+      geom_bar(fill="#006633", 
+               alpha = 0.7) +
+      theme_hc() + 
+      theme(axis.title = element_text(size = 12),
+            axis.text.x = element_text(angle = 35, 
+                                    hjust = 1,
+                                    size = 12),
+            axis.text.y = element_text(size = 12)) +
       labs(x = "HLA allele", 
-           y = "Allele count") +
-      scale_y_continuous(labels = comma_format(big.mark = "."))
+           y = "Frequency") +
+      scale_y_continuous(labels = comma_format(big.mark = ".",
+                                            decimal.mark = ","))        
 
 
 ## Distribution of the peptide lenght 
+# n = 579.880
 data_clean_all %>% 
    mutate(pep_lenght = as.factor(pep_lenght)) %>% 
-   ggplot(aes(x = pep_lenght)) + 
-      geom_bar(fill="#3366CC") + 
-      geom_text(aes(label = ..count..), 
-                stat = "count", vjust = -0.5, 
-                colour = "black", size = 3) +
-      annotate(geom="text", 
-               x= as.factor(14), y=280000, 
-               label="n = 579.880",
-               color="black") +
-      theme_minimal() + 
-      theme(plot.title = element_text(face = "bold", 
-                                      size = 16),
-            plot.subtitle = element_text(face = "italic")) +
-      labs(x = "Peptide lenght", 
-           y = "Peptide count") +
-      scale_y_continuous(labels = comma_format(big.mark = "."))
+   ggplot(aes(x = pep_lenght, 
+              fill= pep_lenght)) + 
+      geom_bar(alpha = 0.7,
+               fill="#006633") + 
+      geom_text(aes(label = ..count..),
+                stat = "count", 
+                vjust = -0.5,
+                colour = "black", 
+                size = 4) +
+      theme_hc() + 
+      theme(axis.text = element_text(size = 12),
+            axis.title = element_text(size = 12)) +
+      labs(x = "Epitope length", 
+           y = "Frequency") +
+     scale_y_continuous(labels = comma_format(big.mark = ".",
+     decimal.mark = ","))
 
+# Distribution of peptide frequency in HLA*02:01 restricted data 
+# Only positive cases
+data_A0201 %>% 
+   filter(Binding == 1) %>% 
+   group_by(Peptide) %>% 
+   summarise(count = n()) %>% 
+   mutate(Peptide = case_when(count < 600 ~ "Other", 
+                              TRUE ~ Peptide)) %>% 
+   ggplot(aes(x = reorder(Peptide, -count), y = count)) + 
+   geom_bar(stat = "identity",
+            fill="#006633", 
+            alpha = 0.7) +
+   theme_hc() + 
+   theme(axis.title = element_text(size = 12),
+         axis.text.x = element_text(angle = 35, 
+                                    hjust = 1,
+                                    size = 12),
+         axis.text.y = element_text(size = 12)) +
+   labs(x = "Epitope", 
+        y = "Frequency") +
+   scale_y_continuous(labels = comma_format(big.mark = ".",
+                                            decimal.mark = ",")) 
 
 # Save plots --------------------------------------------------------------
-ggsave(plot = training_mdl_5,
-       filename = "results/plt_onehot_training_mdl_5.png")
+
