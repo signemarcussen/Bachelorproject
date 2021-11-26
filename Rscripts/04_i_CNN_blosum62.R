@@ -36,12 +36,6 @@ blosum62 <- blosum62_X %>%
    as.matrix()
 
 
-# ## Subset
-# set.seed(2005)
-# data_A0201 <- data_A0201 %>% # SUBSET
-#       sample_n(50000) #1000, 7-8min
-
-
 ## Pad short CDR3b sequences with "X" to same length
 max_CDR3b <- data_A0201 %>% 
       select(CDR3b_size) %>% 
