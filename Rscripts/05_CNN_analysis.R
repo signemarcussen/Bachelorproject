@@ -20,13 +20,6 @@ blosum_CV_preds <- read_tsv(file = "data/04_i_data_A0201_mdl_preds_CV.tsv.gz")
 onehot_test_preds <- read_tsv(file = "data/04_ii_data_A0201_onehot_mdl_preds_test_RMSall.tsv.gz")
 onehot_CV_preds <- read_tsv(file = "data/04_ii_data_A0201_onehot_mdl_preds_CV_RMSall.tsv.gz")
 
-# blosum_test_preds <- blosum_test_preds %>% sample_n(2000)
-# blosum_CV_preds <- blosum_CV_preds %>% sample_n(2000)
-# 
-# 
-# onehot_test_preds <- onehot_test_preds %>% sample_n(2000)
-# onehot_CV_preds <- onehot_CV_preds %>% sample_n(2000)
-
 
 # Metadata - DONT ASSIGN IT, just load and it will load into workspace
 load(file = "data/04_i_blosum_metadata.Rdata")
@@ -150,8 +143,8 @@ p_mdl_5_blosum <- meta_data_blosum[["mdl_5"]]$history %>%
    xlim(1, 20) +
    theme_minimal()+
    theme(axis.title = element_text(size = 14),
-         axis.text.x = element_text(size = 12),
-         axis.text.y = element_text(size = 12),
+         axis.text = element_text(size = 12),
+         legend.text = element_text(size = 11),
          strip.text = element_text(size = 12))+
    labs(x = "Epoch", 
         y = " ") +
@@ -561,7 +554,7 @@ both_CM <- grid.arrange(p_blosum_CM_test,
              bottom = "Predicted Class")
 
 
-# Write data --------------------------------------------------------------
+# Save plots --------------------------------------------------------------
 
 ggsave(filename = "results/CNN_onehot_loss.png",
        plot = p_mdl_onehot,
