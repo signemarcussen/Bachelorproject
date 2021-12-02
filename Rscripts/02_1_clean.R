@@ -24,19 +24,17 @@ data_clean_all <- data_raw_combined %>%
             into = "CDR3b",
             extra = "drop") %>% 
    mutate(CDR3b = na_if(CDR3b, ""),
-          pep_lenght = str_length(Peptide)) %>% 
+          pep_length = str_length(Peptide)) %>% 
    filter_at(.vars = vars(CDR3b, Peptide),
              .vars_predicate = all_vars(str_detect(.,
                                                    "[^LITSFANMPGKQYVHWDERC]", 
                                                    negate = TRUE))) %>% 
    drop_na()
-#579880
 
-# Subset by peptides of lenght = 9
-#305341
+# Subset by peptides of length = 9
 data_clean <- data_clean_all %>% 
-   filter(pep_lenght == 9) %>% 
-   select(-pep_lenght)
+   filter(pep_length == 9) %>% 
+   select(-pep_length)
    
 # Renaming HLA columns 
 HLA_X <- c("HLA-A","HLA-A_1","HLA-B","HLA-B_1","HLA-C","HLA-C_1")
