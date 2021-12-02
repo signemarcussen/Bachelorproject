@@ -239,7 +239,7 @@ p_ROC_best <- ggroc(list('One-Hot, AUC = 0.79'= ROC_onehot_test,
             geom_segment(aes(x = 0, xend = 1, y = 0, yend = 1), 
                          color="grey", linetype="dashed") + 
             theme_minimal() +   
-            theme(legend.position = c(0.85,0.17),
+            theme(legend.position = c(0.8,0.17),
                   axis.title = element_text(size = 14),
                   axis.text =  element_text(size = 12),
                   legend.text = element_text(size = 11),
@@ -331,7 +331,7 @@ p_ss_blosum_test <- ggplot(coords_blosum_test) +
                            color = 'Specificity (TNR) ')) +
    geom_line(mapping = aes(y = sensitivity, 
                            x = threshold, 
-                           color = 'Sensitivity (TRP)')) +
+                           color = 'Sensitivity (TPR)')) +
    geom_vline(xintercept = threshold_blosum_test,
               linetype='dotted')+
    scale_colour_manual(values = c(color_blosum_CV,
@@ -339,7 +339,8 @@ p_ss_blosum_test <- ggplot(coords_blosum_test) +
    theme_minimal() +
    theme(axis.title = element_text(size = 14),
          axis.text = element_text(size = 12),
-         legend.text = element_text(size = 11)) +
+         legend.text = element_text(size = 11),
+         legend.position = "bottom") +
    labs(x = "Threshold", 
         y = "Rate",
         color = " ") 
@@ -388,7 +389,7 @@ p_ss_onehot_test <- ggplot(coords_onehot_test) +
                            color = 'Specificity (TNR) '))+
    geom_line(mapping = aes(y = sensitivity, 
                            x = threshold, 
-                           color = 'Sensitivity (TRP)'))+
+                           color = 'Sensitivity (TPR)'))+
    geom_vline(xintercept = threshold_onehot_test,
               linetype='dotted')+
    scale_colour_manual(values = c(color_onehot_CV,
@@ -396,7 +397,8 @@ p_ss_onehot_test <- ggplot(coords_onehot_test) +
    theme_minimal() +
    theme(axis.title = element_text(size = 14),
          axis.text = element_text(size = 12),
-         legend.text = element_text(size = 11)) +
+         legend.text = element_text(size = 11),
+         legend.position = "bottom") +
    labs(x = "Threshold", 
         y = "Rate",
         color = " ")
@@ -574,16 +576,16 @@ ggsave(filename = "results/CNN_blosum_loss_mdl_5.png",
        height = 3.47, 
        units = "in")
 
-ggsave(filename = "results/all_AUC.png",
+ggsave(filename = "results/all_AUC_1.png",
        plot = p_all_AUC,
-       width = 8,
-       height = 6, 
+       width = 5.5,
+       height = 4, 
        units = "in")
 
-ggsave(filename = "results/ROC_best_test.png",
+ggsave(filename = "results/ROC_best_test_1.png",
        plot = p_ROC_best,
-       width = 7.39,
-       height = 3.47, 
+       width = 5.5,
+       height = 4, 
        units = "in")
 
 ggsave(filename = "results/ROC_onehot.png",
@@ -600,14 +602,14 @@ ggsave(filename = "results/ROC_blosum.png",
 
 ggsave(filename = "results/ss_blosum_test.png",
        plot = p_ss_blosum_test,
-       width = 7.5,
-       height = 2.6, 
+       width = 4.5,
+       height = 3, 
        units = "in")
 
 ggsave(filename = "results/ss_onehot_test.png",
        plot = p_ss_onehot_test,
-       width = 7.5,
-       height = 2.6, 
+       width = 4.5,
+       height = 3, 
        units = "in")
 
 ggsave(filename = "results/blosum_CM_test.png",
