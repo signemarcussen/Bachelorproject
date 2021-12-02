@@ -46,12 +46,11 @@ p_HLA_distribution <- inner_join(data_clean_matched,
                                             decimal.mark = ". "))        
 
 
-## Distribution of the peptide lenght -------------------------------------------
-# n = 579.880
+## Distribution of the peptide length -------------------------------------------
 p_peptide_distribution <- data_clean_all %>% 
-      mutate(pep_lenght = as.factor(pep_lenght)) %>% 
-      ggplot(aes(x = pep_lenght, 
-                 fill= pep_lenght)) + 
+      mutate(pep_length = as.factor(pep_length)) %>% 
+      ggplot(aes(x = pep_length, 
+                 fill= pep_length)) + 
          geom_bar(alpha = 0.7,
                   fill="#006633") + 
          geom_text(aes(label = format(..count.. , big.mark = " ", decimal.mark = ".")),

@@ -71,20 +71,17 @@ data_clean_matched <- data_clean %>%
    filter(EL_Rank <= 2) %>% 
    select(-Experiment, -EL_Rank) %>% 
    distinct()
-# - Observations: 289523
 
 ## Removing systematic C/F aminoacids 
 data_clean_matched <- data_clean_matched %>% 
    filter(str_detect(CDR3b, "^C.\\w*F$")) %>% 
    mutate(CDR3b = str_sub(CDR3b, 2, -2))
 
-# - Observations: 287195
 
 ## Subset only HLA-A*02:01
 data_A0201 <- data_clean_matched %>% 
    filter(Allele == "A*02:01") %>% 
    select(-Allele)
-# - Observations: 104701
 
 
 ## Create non-binders by mismatching CDR3b with peptide and corresponding allele
@@ -110,7 +107,6 @@ duplicates_extern <- non_binders %>%
 
 duplicates <- bind_rows(duplicates_intern,
                         duplicates_extern)
-# - Duplicates: 12751
 
 # Keep only correct mismatches
 non_binders_unique <- non_binders %>% 
@@ -149,7 +145,6 @@ data_A0201_complete <- bind_rows(data_A0201,
                                  duplicates) %>% 
    mutate(CDR3b_size = nchar(CDR3b)) %>% 
    replace_na(list(Binding = 0))
-#- Observations: 209402
 
 ## View number of unique peptides and CDR3b sequences
 data_A0201_complete %>% distinct(Peptide)

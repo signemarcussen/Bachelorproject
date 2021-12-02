@@ -18,10 +18,6 @@ data_A0201 <- read_tsv(file = "data/03_data_A0201_complete.tsv.gz")
 
 
 # Wrangle data ------------------------------------------------------------
-## Subset
-# set.seed(2005)
-# data_A0201 <- data_A0201 %>% # SUBSET
-#       sample_n(50000)
 
 ## Amino acids
 amino_acids = "LITSFANMPGKQYVHWDERC"

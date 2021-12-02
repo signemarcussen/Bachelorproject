@@ -36,7 +36,7 @@ color_onehot_test <-"#FF9900"
 color_onehot_CV <- "#FF3300"
 
 # Loss during training of models -----------------------------
-## One-Hot encoding -----------------------------
+## One-Hot encoding ------------------------------------------
 p <- list()
 for (i in 1:20) {
       mdl <- str_c("mdl_", i)
@@ -82,7 +82,7 @@ p_mdl_onehot <- (p[[1]]+p[[2]]+p[[3]]+p[[4]]+p[[5]] +
    theme(legend.position = 'bottom')
 
 
-## Blosum encoding -----------------------------
+## Blosum encoding ------------------------------------------------------
 p <- list()
 for (i in 1:20) {
    mdl <- str_c("mdl_", i)
@@ -153,10 +153,10 @@ p_mdl_5_blosum <- meta_data_blosum[["mdl_5"]]$history %>%
                                   color_blosum_test),
                        labels = c("Training",
                                   "Validation"))
-p_mdl_5_blosum
 
 
-# ROC and AUC values -----------------------------------
+
+# ROC and AUC values --------------------------------------------------------
 
 ## ROC and AUC values Blosum
 ROC_blosum_test <- blosum_test_preds %>% 
@@ -249,7 +249,7 @@ p_ROC_best <- ggroc(list('One-Hot, AUC = 0.79'= ROC_onehot_test,
       
 
 
-## ROC plot for One-Hot -----------------------------------------------------
+## ROC plot for One-Hot -----------------------------------------------------------------
 
 p_ROC_onehot <- ggroc(list('CV, AUC = 0.76'= ROC_onehot_CV,
                            'Hold-out, AUC = 0.79' = ROC_onehot_test),
@@ -302,7 +302,7 @@ p_ROC_blosum <- ggroc(list('CV, AUC = 0.74'= ROC_blosum_CV,
         x = "1-Specificity",
         y = "Sensitivity")
 
-# Sensitivity / specificity plot --------------------------------------------
+# Sensitivity / specificity plot -----------------------------------------------------
 
 ## Sensitivity / specificity plot, Blosum, Hold-out -----------------------------------
 # Getting the coordinates from the ROC-curve, test set 
@@ -346,23 +346,7 @@ p_ss_blosum_test <- ggplot(coords_blosum_test) +
         color = " ") 
 
 
-## Sensitivity / specificity plot, Blosum, CV -----------------------------------
-
-# Getting the coordinates from the ROC-curve, CV
-coords_blosum_CV <- coords(ROC_blosum_CV, 
-                           x = "all")
-# Finding the threshold 
-coords_blosum_CV <- coords_blosum_CV %>% 
-   mutate(diff = specificity-sensitivity)
-
-# Find value in tibble
-threshold_blosum_CV <- 0.4912365
-
-## The threshold is very close to the one for Hold-out set, 
-## therefore plot is not created 
-
-
-## Sensitivity / specificity plot, One-Hot, Hold-out  -----------------------------------
+## Sensitivity / specificity plot, One-Hot, Hold-out  ------------------------------
 # Getting the coordinates from the ROC-curve
 coords_onehot_test <- coords(ROC_onehot_test, 
                              x = "all")
@@ -402,23 +386,6 @@ p_ss_onehot_test <- ggplot(coords_onehot_test) +
    labs(x = "Threshold", 
         y = "Rate",
         color = " ")
-
-
-## Sensitivity / specificity plot, One-Hot, CV  -----------------------------------
-# Getting the coordinates from the ROC-curve
-coords_onehot_CV <- coords(ROC_onehot_CV, 
-                             x = "all")
-
-# Finding the threshold 
-coords_onehot_CV <- coords_onehot_CV %>% 
-   mutate(diff = specificity-sensitivity)
-
-# Find value in tibble
-threshold_onehot_CV <- 0.5108373
-
-## The threshold is very close to the one for Hold-out set, 
-## therefore plot is not created 
-
 
 
 # Confusion matrix ------------------------------------------------------------
@@ -480,9 +447,8 @@ p_blosum_CM_test <- blosum_test_preds %>%
    scale_y_continuous(name = "Actual Class",
                       breaks = c(0,1)) +
    theme_minimal()+ 
-   theme(#axis.title = element_text(size = 14),
-      axis.text = element_text(size = 12),
-      axis.title = element_blank(),
+   theme(axis.text = element_text(size = 12),
+         axis.title = element_blank(),
          legend.position = "none")
 
 
@@ -544,8 +510,7 @@ p_onehot_CM_test <- onehot_test_preds %>%
    scale_y_continuous(name = "Actual Class",
                       breaks = c(0,1)) +
    theme_minimal()+ 
-   theme(#axis.title = element_text(size = 14),
-         axis.text = element_text(size = 12),
+   theme(axis.text = element_text(size = 12),
          axis.title = element_blank(),
          legend.position = "none") 
 
@@ -623,9 +588,3 @@ ggsave(filename = "results/onehot_CM_test.png",
        width = 5,
        height = 5, 
        units = "in")
-
-# ggsave(filename = "results/both_CM.png",
-#        plot = both_CM,
-#        width = 10,
-#        height = 5,
-#        units = "in")

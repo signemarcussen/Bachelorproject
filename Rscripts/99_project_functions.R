@@ -61,15 +61,3 @@ one_hot_encoding <- function(peptide, amino) {
    return(o_tensor)
    
 }
-
-
-
-
-
-
-
-
-
-
-
-

@@ -18,7 +18,6 @@ data_A0201 <- read_tsv(file = "data/03_data_A0201_complete.tsv.gz")
 blosum62_raw <- read.table(file = "data/_raw/BLOSUM62.txt", 
                            skip = 6)
 
-
 # Wrangle data ------------------------------------------------------------
 ## Blosum matrix
 X <- rep(0,21)
@@ -381,10 +380,6 @@ data_A0201_mdl_preds_test <- data_A0201_mdl_preds_test %>%
       mutate(pred_mdl_mean = select(., contains("pred_")) %>% 
                    rowMeans(na.rm = TRUE)) %>% 
       as_tibble()
-
-# Specify trained model and save the predictions 
-write_tsv(x = data_A0201_mdl_preds_test,
-          file = "models/pred_blosum62/pred_B03.tsv.gz")
 
 # Rename metadata for saving
 meta_data_blosum <- meta_data
